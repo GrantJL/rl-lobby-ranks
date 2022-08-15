@@ -1,0 +1,43 @@
+name: Release
+
+# The workflow will be run when a commit is tagged with a version number
+on:
+  push:
+    tags:
+    - 'v*'
+
+env:
+  SOLUTION_NAME: match-stats
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v3
+      with:
+        path: plugin
+
+    - name: Clone BakkesmodSDK
+      uses: actions/checkout@v3
+      with:
+        repository: bakkesmodorg/BakkesModSDK
+        path: plugin\bakkesmodsdk
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Build
+      run: msbuild /m /p:Configuration=Release /p:BakkesModPath=$env:GITHUB_WORKSPACE\plugin /p:Environment=GitHub $env:GITHUB_WORKSPACE\plugin\${{ env.SOLUTION_NAME }}.sln
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ github.workspace }}\plugin\plugins\${{ env.SOLUTION_NAME }}.dll
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
