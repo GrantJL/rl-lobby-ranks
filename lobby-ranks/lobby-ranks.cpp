@@ -225,7 +225,7 @@ void LobbyRanks::refreshLobbyRanks()
 		}
 	};
 
-	//playerz.clear();
+	playerz.clear();
 	for( int i = 0; i < server.GetPRIs().Count(); i++ )
 	{
 		PriWrapper pri = server.GetPRIs().Get(i);
