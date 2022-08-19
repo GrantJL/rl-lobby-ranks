@@ -24,6 +24,7 @@ const char* LobbyRanks::Vars::scale =             LR_CVAR_PREFIX "scale";
 const char* LobbyRanks::Vars::refresh =           LR_CVAR_PREFIX "refresh";
 
 const char* LobbyRanks::Input::enabled = "P";
+const char* LobbyRanks::Input::refresh = "LeftShift+P";
 
 void LobbyRanks::RenderSettings() {}
 std::string LobbyRanks::GetPluginName()
@@ -47,6 +48,7 @@ void LobbyRanks::onLoad()
 	cvarManager->registerCvar( Vars::scale,             "1",     "Overlay scale",      true, true, 0.5, true, 3,    true );
 
 	cvarManager->setBind( Input::enabled, Vars::enabled );
+	cvarManager->setBind( Input::refresh, Vars::refresh );
 
 	cvarManager->registerNotifier(
 		Vars::enabled,
@@ -54,7 +56,15 @@ void LobbyRanks::onLoad()
 			setEnabled( !isEnabled() );
 			cvarManager->getCvar(Vars::enabled).setValue( isEnabled() );
 		},
-		"Toggle plugin",
+		"Toggle Lobby Ranks Plugin",
+		PERMISSION_ALL );
+
+	cvarManager->registerNotifier(
+		Vars::refresh,
+		[this]( std::vector<std::string> ) {
+			refresh();
+		},
+		"Refresh Lobby Ranks Table",
 		PERMISSION_ALL );
 
 	gameWrapper->RegisterDrawable( std::bind( &LobbyRanks::render, this, std::placeholders::_1 ) );
@@ -67,6 +77,13 @@ void LobbyRanks::onLoad()
 				setEnabled( true );
 		},
 		1 );
+}
+
+void LobbyRanks::refresh()
+{
+	updatePlayers();
+	table = getTable();
+	recalculate = true;
 }
 
 bool LobbyRanks::isInGame()
@@ -110,9 +127,9 @@ void LobbyRanks::updatePlayers()
 	std::reverse( players.begin(), players.end() );
 }
 
-Table LobbyRanks::getTable( CanvasWrapper c )
+Table LobbyRanks::getTable()
 {
-	Table table;
+	Table ptable;
 	int l = 40; int d = 20; int a = 255;
 	LinearColor light{ l, l, l, a };
 	LinearColor dark{ d, d, d, a };
@@ -131,7 +148,7 @@ Table LobbyRanks::getTable( CanvasWrapper c )
 		return row;
 	};
 
-	table.addRow( getHeader() );
+	ptable.addRow( getHeader() );
 	bool even = true;
 	for( auto& player : players )
 	{
@@ -140,10 +157,15 @@ Table LobbyRanks::getTable( CanvasWrapper c )
 			LobbyRanks::Playlists,
 			pad );
 		for( auto& row : playerRows )
-			table.addRow( row );
+			ptable.addRow( row );
 		even = !even;
 	}
 
+	return ptable;
+}
+
+void LobbyRanks::resizeTable( CanvasWrapper c )
+{
 	auto calcSize = [&]( Table::Cell& cell, size_t row, size_t col ) {
 		cell.valueSize = c.GetStringSize( cell.value );
 		cell.size = cell.valueSize;
@@ -151,7 +173,7 @@ Table LobbyRanks::getTable( CanvasWrapper c )
 	table.forEach( calcSize );
 	table.fitSize();
 	table.realign();
-	return table;
+	recalculate = false;
 }
 
 void LobbyRanks::onUnload() {}
@@ -175,8 +197,10 @@ bool LobbyRanks::setEnabled( bool enabled )
 
 void LobbyRanks::drawTable( CanvasWrapper& canvas )
 {
-	updatePlayers();
-	Table table = getTable( canvas );
+	if( recalculate )
+		resizeTable( canvas );
+
+	if( table.empty() ) return;
 
 	auto mw = gameWrapper->GetMMRWrapper();
 	jlg::rl::lobby_ranks::Playlist p =

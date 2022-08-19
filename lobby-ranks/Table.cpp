@@ -37,7 +37,7 @@ void Table::clear()
 }
 bool Table::empty() const
 {
-	return (table.size() != 0 && table.front().size() != 0);
+	return (table.size() == 0 || table.front().size() == 0);
 }
 size_t Table::numRows() const
 {
@@ -71,6 +71,8 @@ Table::Row& Table::operator[]( const size_t& r )
 Vector2F Table::size() const
 {
 	Vector2F size{ 0.0, 0.0 };
+	if( empty() ) return size;
+
 	for( size_t y = 0; y < table.size(); y++ )
 		size.Y += table[y].front().paddedSize().Y;
 	for( size_t x = 0; x < table.front().size(); x++ )
@@ -80,6 +82,7 @@ Vector2F Table::size() const
 
 void Table::fitSize()
 {
+	if( empty() ) return;
 	// Size: Normalized Size
 	// ValueSize: Size of the Value
 	// Padded Size: NormalizedSize + Padding
@@ -128,6 +131,7 @@ void Table::forEach( std::function<bool( Cell&, size_t, size_t )> f )
 
 void Table::realign()
 {
+	if( empty() ) return;
 	auto getAlignment = []( float diff, Table::Align align ) {
 		switch( align ) {
 			case Table::Align::Top:

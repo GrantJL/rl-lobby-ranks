@@ -26,6 +26,7 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		};
 		struct Input {
 			static const char* enabled;
+			static const char* refresh;
 		};
 
 		const std::list<jlg::rl::lobby_ranks::Playlist> Playlists = {
@@ -43,8 +44,10 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		virtual void SetImGuiContext(uintptr_t ctx);
 
 	private:
+		void refresh();
 		void updatePlayers();
-		Table getTable( CanvasWrapper c );
+		Table getTable();
+		void resizeTable( CanvasWrapper c );
 
 		bool isInGame();
 		ServerWrapper getActiveGameServer();
@@ -60,7 +63,9 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		void drawTable( CanvasWrapper& canvas );
 	
 	private:
+		bool recalculate = false;
 		std::list<Player> players;
+		Table table;
 		std::shared_ptr<bool> enabled = std::make_shared<bool>(true);
 };
 
