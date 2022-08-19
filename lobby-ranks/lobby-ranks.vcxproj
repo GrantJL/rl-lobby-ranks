@@ -92,11 +92,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lobby-ranks.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Table.cpp" />
+    <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Enums.h" />
     <ClInclude Include="lobby-ranks.h" />
-    <ClInclude Include="RankAndPlaylistData.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Table.h" />
+    <ClInclude Include="types.h" />
+    <ClInclude Include="util.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>

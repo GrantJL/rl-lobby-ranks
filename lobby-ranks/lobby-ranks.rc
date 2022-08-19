@@ -80,12 +80,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "TODO: <Company name>"
             VALUE "FileDescription", "TODO: <File description>"
-            VALUE "FileVersion", stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD)
+            VALUE "FileVersion", VERSION_FULL
             VALUE "InternalName", "lobby-ranks.dll"
             VALUE "LegalCopyright", "Copyright (C) 2020"
             VALUE "OriginalFilename", "lobby-ranks.dll"
             VALUE "ProductName", "TODO: <Product name>"
-            VALUE "ProductVersion", stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD)
+            VALUE "ProductVersion", VERSION_FULL
         END
     END
     BLOCK "VarFileInfo"
