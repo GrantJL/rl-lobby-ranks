@@ -107,7 +107,7 @@ std::string util::toString<SkillRank>( const SkillRank& v )
 		case Rank::SupersonicLegend: ss << String::Rank::SupersonicLegend; break;
 	}
 	if( rank > Rank::Unranked && rank < Rank::SupersonicLegend )
-		ss << ".D" << v.Division;
+		ss << ".D" << v.Division+1;
 
 	return ss.str();
 }

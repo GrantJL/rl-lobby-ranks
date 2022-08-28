@@ -15,18 +15,30 @@ namespace jlg { namespace rl { namespace lobby_ranks {
 class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginSettingsWindow/*, public BakkesMod::Plugin::PluginWindow*/
 {
 	public:
+		static const char* OnOpenScoreboard;
+		static const char* OnCloseScoreboard;
+		static const char* OnTeamChanged;
+		static const char* GetBotName;
+		static const char* PlayerLeft;
+		static const char* OnAllTeamsCreated;
+		static const char* OnMatchEnded;
+		static const char* ReplayEnd;
+		static const char* ReplayBegin;
+
 		struct Vars {
 			static const char* enabled;
+			static const char* refresh;
+
 			static const char* backgroundOpacity;
 			static const char* xPosition;
 			static const char* yPosition;
 			static const char* scale;
 
-			static const char* refresh;
 		};
 		struct Input {
 			static const char* enabled;
-			static const char* refresh;
+			static const char* refreshL;
+			static const char* refreshR;
 		};
 
 		const std::list<jlg::rl::lobby_ranks::Playlist> Playlists = {
@@ -44,6 +56,8 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		virtual void SetImGuiContext(uintptr_t ctx);
 
 	private:
+		void bindEvent( const char* event, const std::function<void()>& f );
+
 		void refresh();
 		void updatePlayers();
 		Table getTable();

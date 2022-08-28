@@ -16,15 +16,27 @@ BAKKESMOD_PLUGIN( jlg::rl::lobby_ranks::LobbyRanks, "Lobby Ranks", plugin_versio
 
 using namespace jlg::rl::lobby_ranks;
 
+const char* LobbyRanks::OnOpenScoreboard =  "Function TAGame.GFxData_GameEvent_TA.OnOpenScoreboard";
+const char* LobbyRanks::OnCloseScoreboard = "Function TAGame.GFxData_GameEvent_TA.OnCloseScoreboard";
+const char* LobbyRanks::OnTeamChanged =     "Function TAGame.PRI_TA.OnTeamChanged";
+const char* LobbyRanks::GetBotName =        "Function TAGame.PRI_TA.GetBotName";
+const char* LobbyRanks::OnMatchEnded =      "Function TAGame.GameEvent_Soccar_TA.OnMatchEnded";
+const char* LobbyRanks::PlayerLeft =        "Function TAGame.GRI_TA.Destroyed";
+const char* LobbyRanks::OnAllTeamsCreated = "Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated";
+const char* LobbyRanks::ReplayEnd =         "Function ReplayDirector_TA.Playing.EndState";
+const char* LobbyRanks::ReplayBegin =       "Function ReplayDirector_TA.Playing.BeginState";
+
 const char* LobbyRanks::Vars::enabled =           LR_CVAR_PREFIX "enabled";
+const char* LobbyRanks::Vars::refresh =           LR_CVAR_PREFIX "refresh";
+
 const char* LobbyRanks::Vars::backgroundOpacity = LR_CVAR_PREFIX "background_opacity";
 const char* LobbyRanks::Vars::xPosition =         LR_CVAR_PREFIX "x_position";
 const char* LobbyRanks::Vars::yPosition =         LR_CVAR_PREFIX "y_position";
 const char* LobbyRanks::Vars::scale =             LR_CVAR_PREFIX "scale";
-const char* LobbyRanks::Vars::refresh =           LR_CVAR_PREFIX "refresh";
 
 const char* LobbyRanks::Input::enabled = "P";
-const char* LobbyRanks::Input::refresh = "LeftShift+P";
+const char* LobbyRanks::Input::refreshL = "LeftShift+P";
+const char* LobbyRanks::Input::refreshR = "RightShift+P";
 
 void LobbyRanks::RenderSettings() {}
 std::string LobbyRanks::GetPluginName()
@@ -32,6 +44,7 @@ std::string LobbyRanks::GetPluginName()
 	return "Lobby Ranks";
 }
 void LobbyRanks::SetImGuiContext( uintptr_t ctx ) {}
+#pragma region Lobby Ranks
 
 void LobbyRanks::onLoad()
 {
@@ -42,13 +55,22 @@ void LobbyRanks::onLoad()
 				setEnabled( oldValue == "0" );
 			} );
 
+	// Regular Variables
 	cvarManager->registerCvar( Vars::backgroundOpacity, "200",   "Background opacity", true, true, 0,   true, 255,  true );
 	cvarManager->registerCvar( Vars::xPosition,         "0.800", "Overlay X position", true, true, 0,   true, 1.0f, true );
 	cvarManager->registerCvar( Vars::yPosition,         "0.080", "Overlay Y position", true, true, 0,   true, 1.0f, true );
 	cvarManager->registerCvar( Vars::scale,             "1",     "Overlay scale",      true, true, 0.5, true, 3,    true );
 
 	cvarManager->setBind( Input::enabled, Vars::enabled );
-	cvarManager->setBind( Input::refresh, Vars::refresh );
+	cvarManager->setBind( Input::refreshL, Vars::refresh );
+	cvarManager->setBind( Input::refreshR, Vars::refresh );
+
+	bindEvent( OnOpenScoreboard,  [&]() { setEnabled( true ); } );
+	bindEvent( OnCloseScoreboard, [&]() { setEnabled( false ); } );
+	bindEvent( OnTeamChanged,     [&]() { refresh(); } );
+	bindEvent( GetBotName,        [&]() { refresh(); } );
+	bindEvent( PlayerLeft,        [&]() { refresh(); } );
+	bindEvent( OnAllTeamsCreated, [&]() { refresh(); } );
 
 	cvarManager->registerNotifier(
 		Vars::enabled,
@@ -77,6 +99,11 @@ void LobbyRanks::onLoad()
 				setEnabled( true );
 		},
 		1 );
+}
+
+void LobbyRanks::bindEvent( const char* event, const std::function<void()>& f )
+{
+	gameWrapper->HookEvent( event, std::bind(f) );
 }
 
 void LobbyRanks::refresh()
@@ -285,3 +312,5 @@ void LobbyRanks::drawTable( CanvasWrapper& canvas )
 	};
 	table.forEach( drawCell );
 }
+
+#pragma endregion
