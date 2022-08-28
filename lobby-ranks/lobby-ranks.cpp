@@ -10,33 +10,37 @@
 #include <list>
 #include <numeric>
 
-#define LR_CVAR_PREFIX "jlg_lobby_rank_"
+#define LR_CMD_PREFIX "jlg_lobby_rank_"
+#define LR_CVAR_PREFIX LR_CMD_PREFIX "v_"
 
-BAKKESMOD_PLUGIN( jlg::rl::lobby_ranks::LobbyRanks, "Lobby Ranks", plugin_version, PLUGINTYPE_FREEPLAY )
+BAKKESMOD_PLUGIN( jlg::LobbyRanks, "Lobby Ranks", plugin_version, PLUGINTYPE_FREEPLAY )
 
-using namespace jlg::rl::lobby_ranks;
+using namespace jlg;
 
-const char* LobbyRanks::OnOpenScoreboard =  "Function TAGame.GFxData_GameEvent_TA.OnOpenScoreboard";
-const char* LobbyRanks::OnCloseScoreboard = "Function TAGame.GFxData_GameEvent_TA.OnCloseScoreboard";
-const char* LobbyRanks::OnTeamChanged =     "Function TAGame.PRI_TA.OnTeamChanged";
-const char* LobbyRanks::GetBotName =        "Function TAGame.PRI_TA.GetBotName";
-const char* LobbyRanks::OnMatchEnded =      "Function TAGame.GameEvent_Soccar_TA.OnMatchEnded";
-const char* LobbyRanks::PlayerLeft =        "Function TAGame.GRI_TA.Destroyed";
-const char* LobbyRanks::OnAllTeamsCreated = "Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated";
-const char* LobbyRanks::ReplayEnd =         "Function ReplayDirector_TA.Playing.EndState";
-const char* LobbyRanks::ReplayBegin =       "Function ReplayDirector_TA.Playing.BeginState";
+const char* LobbyRanks::GameEvent::OnOpenScoreboard =  "Function TAGame.GFxData_GameEvent_TA.OnOpenScoreboard";
+const char* LobbyRanks::GameEvent::OnCloseScoreboard = "Function TAGame.GFxData_GameEvent_TA.OnCloseScoreboard";
+const char* LobbyRanks::GameEvent::OnTeamChanged =     "Function TAGame.PRI_TA.OnTeamChanged";
+const char* LobbyRanks::GameEvent::GetBotName =        "Function TAGame.PRI_TA.GetBotName";
+const char* LobbyRanks::GameEvent::OnMatchEnded =      "Function TAGame.GameEvent_Soccar_TA.OnMatchEnded";
+const char* LobbyRanks::GameEvent::PlayerLeft =        "Function TAGame.GRI_TA.Destroyed";
+const char* LobbyRanks::GameEvent::OnAllTeamsCreated = "Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated";
+const char* LobbyRanks::GameEvent::ReplayEnd =         "Function ReplayDirector_TA.Playing.EndState";
+const char* LobbyRanks::GameEvent::ReplayBegin =       "Function ReplayDirector_TA.Playing.BeginState";
 
-const char* LobbyRanks::Vars::enabled =           LR_CVAR_PREFIX "enabled";
-const char* LobbyRanks::Vars::refresh =           LR_CVAR_PREFIX "refresh";
+const char* LobbyRanks::Var::enabled =           LR_CVAR_PREFIX "enabled";
+const char* LobbyRanks::Var::shown =             LR_CVAR_PREFIX "show";
+const char* LobbyRanks::Var::scoreboardOpen =    LR_CVAR_PREFIX "scoreboard_open";
+const char* LobbyRanks::Var::backgroundOpacity = LR_CVAR_PREFIX "background_opacity";
+const char* LobbyRanks::Var::xPosition =         LR_CVAR_PREFIX "x_position";
+const char* LobbyRanks::Var::yPosition =         LR_CVAR_PREFIX "y_position";
+const char* LobbyRanks::Var::scale =             LR_CVAR_PREFIX "scale";
 
-const char* LobbyRanks::Vars::backgroundOpacity = LR_CVAR_PREFIX "background_opacity";
-const char* LobbyRanks::Vars::xPosition =         LR_CVAR_PREFIX "x_position";
-const char* LobbyRanks::Vars::yPosition =         LR_CVAR_PREFIX "y_position";
-const char* LobbyRanks::Vars::scale =             LR_CVAR_PREFIX "scale";
 
-const char* LobbyRanks::Input::enabled = "P";
-const char* LobbyRanks::Input::refreshL = "LeftShift+P";
-const char* LobbyRanks::Input::refreshR = "RightShift+P";
+const char* LobbyRanks::Command::refresh =    LR_CMD_PREFIX "refresh";
+const char* LobbyRanks::Command::toggleShow = LR_CMD_PREFIX "toggle";
+const char* LobbyRanks::Command::debug =      "jlg_debug";
+
+const char* LobbyRanks::Input::toggleShow = "P";
 
 void LobbyRanks::RenderSettings() {}
 std::string LobbyRanks::GetPluginName()
@@ -44,11 +48,12 @@ std::string LobbyRanks::GetPluginName()
 	return "Lobby Ranks";
 }
 void LobbyRanks::SetImGuiContext( uintptr_t ctx ) {}
+
 #pragma region Lobby Ranks
 
 void LobbyRanks::onLoad()
 {
-	auto enableCVAR = cvarManager->registerCvar( Vars::enabled, "1", "Display Lobby Ranks", true, true, 0, true, 1, true );
+	auto enableCVAR = cvarManager->registerCvar( Var::enabled, "1", "Enable Lobby Ranks", true, true, 0, true, 1, true );
 	enableCVAR.addOnValueChanged(
 			[this]( std::string oldValue, CVarWrapper cvar )
 			{
@@ -56,37 +61,50 @@ void LobbyRanks::onLoad()
 			} );
 
 	// Regular Variables
-	cvarManager->registerCvar( Vars::backgroundOpacity, "200",   "Background opacity", true, true, 0,   true, 255,  true );
-	cvarManager->registerCvar( Vars::xPosition,         "0.800", "Overlay X position", true, true, 0,   true, 1.0f, true );
-	cvarManager->registerCvar( Vars::yPosition,         "0.080", "Overlay Y position", true, true, 0,   true, 1.0f, true );
-	cvarManager->registerCvar( Vars::scale,             "1",     "Overlay scale",      true, true, 0.5, true, 3,    true );
+	cvarManager->registerCvar( Var::shown,             "0",     "Show Ranks Table",   true,  true, 0,   true, 1,    false );
+	cvarManager->registerCvar( Var::scoreboardOpen,    "0",     "Scoreboard Visible", false, true, 0,   true, 1,    false );
+	cvarManager->registerCvar( Var::backgroundOpacity, "200",   "Background opacity", false, true, 0,   true, 255,  true );
+	cvarManager->registerCvar( Var::xPosition,         "0.800", "Overlay X position", false, true, 0,   true, 1.0f, true );
+	cvarManager->registerCvar( Var::yPosition,         "0.080", "Overlay Y position", false, true, 0,   true, 1.0f, true );
+	cvarManager->registerCvar( Var::scale,             "1",     "Overlay scale",      false, true, 0.5, true, 3,    true );
 
-	cvarManager->setBind( Input::enabled, Vars::enabled );
-	cvarManager->setBind( Input::refreshL, Vars::refresh );
-	cvarManager->setBind( Input::refreshR, Vars::refresh );
+	// Commands
+	cvarManager->registerCvar( Command::toggleShow, "0",     "Toggle",  true, false, .0f, false, .0f, false );
+	cvarManager->registerCvar( Command::refresh,    "0",     "Refresh", true, false, .0f, false, .0f, false );
+	cvarManager->registerCvar( Command::debug,      "0",     "Debug",  false, false, .0f, false, .0f, false );
 
-	bindEvent( OnOpenScoreboard,  [&]() { setEnabled( true ); } );
-	bindEvent( OnCloseScoreboard, [&]() { setEnabled( false ); } );
-	bindEvent( OnTeamChanged,     [&]() { refresh(); } );
-	bindEvent( GetBotName,        [&]() { refresh(); } );
-	bindEvent( PlayerLeft,        [&]() { refresh(); } );
-	bindEvent( OnAllTeamsCreated, [&]() { refresh(); } );
+	cvarManager->setBind( Input::toggleShow, Command::toggleShow );
+
+	bindEvent( GameEvent::OnOpenScoreboard,  [&]() { setScoreboardOpen( true ); } );
+	bindEvent( GameEvent::OnCloseScoreboard, [&]() { setScoreboardOpen( false ); } );
+	bindEvent( GameEvent::OnTeamChanged,     [&]() { refresh(); } );
+	bindEvent( GameEvent::GetBotName,        [&]() { refresh(); } );
+	bindEvent( GameEvent::PlayerLeft,        [&]() { refresh(); } );
+	bindEvent( GameEvent::OnAllTeamsCreated, [&]() { refresh(); } );
 
 	cvarManager->registerNotifier(
-		Vars::enabled,
+		Command::toggleShow,
 		[this]( std::vector<std::string> ) {
-			setEnabled( !isEnabled() );
-			cvarManager->getCvar(Vars::enabled).setValue( isEnabled() );
+			setVisible( !isVisible() );
+			cvarManager->getCvar(Var::shown).setValue( isVisible() );
 		},
 		"Toggle Lobby Ranks Plugin",
 		PERMISSION_ALL );
 
 	cvarManager->registerNotifier(
-		Vars::refresh,
+		Command::refresh,
 		[this]( std::vector<std::string> ) {
 			refresh();
 		},
 		"Refresh Lobby Ranks Table",
+		PERMISSION_ALL );
+
+	cvarManager->registerNotifier(
+		Command::debug,
+		[this]( std::vector<std::string> ) {
+			debugPrint();
+		},
+		"",
 		PERMISSION_ALL );
 
 	gameWrapper->RegisterDrawable( std::bind( &LobbyRanks::render, this, std::placeholders::_1 ) );
@@ -95,7 +113,7 @@ void LobbyRanks::onLoad()
 	gameWrapper->SetTimeout(
 		[this]( GameWrapper* gw )
 		{
-			if( cvarManager->getCvar(Vars::enabled).getBoolValue() )
+			if( cvarManager->getCvar(Var::enabled).getBoolValue() )
 				setEnabled( true );
 		},
 		1 );
@@ -207,7 +225,9 @@ void LobbyRanks::onUnload() {}
 
 void LobbyRanks::render( CanvasWrapper canvas )
 {
-	if( isEnabled() )
+	if( !isEnabled() ) return;
+
+	if( isVisible() || (/*scoreBoardEnabled && */ isScoreboardOpen()) )
 		drawTable( canvas );
 }
 
@@ -215,11 +235,28 @@ bool LobbyRanks::isEnabled()
 {
 	return *enabled;
 }
-
 bool LobbyRanks::setEnabled( bool enabled )
 {
 	this->enabled = std::make_shared<bool>( enabled );
 	return enabled;
+}
+bool LobbyRanks::isVisible()
+{
+	return *visible;
+}
+bool LobbyRanks::setVisible(bool visible)
+{
+	this->visible = std::make_shared<bool>( visible );
+	return visible;
+}
+bool LobbyRanks::isScoreboardOpen()
+{
+	return *sbOpen;
+}
+bool LobbyRanks::setScoreboardOpen(bool open)
+{
+	this->sbOpen = std::make_shared<bool>( open );
+	return open;
 }
 
 void LobbyRanks::drawTable( CanvasWrapper& canvas )
@@ -230,17 +267,16 @@ void LobbyRanks::drawTable( CanvasWrapper& canvas )
 	if( table.empty() ) return;
 
 	auto mw = gameWrapper->GetMMRWrapper();
-	jlg::rl::lobby_ranks::Playlist p =
-		jlg::rl::lobby_ranks::Playlist( mw.GetCurrentPlaylist() );
+	jlg::Playlist p = jlg::Playlist( mw.GetCurrentPlaylist() );
 	/*size_t playListIndex = 0;
 	auto piter = Playlists.begin();
 	while( piter != Playlists.end() && *piter != p )
 	{ playListIndex++; piter++; }*/
 
-	float scale = 1.0;// cvarManager->getCvar( Vars::scale ).getFloatValue();
-	float xpos = cvarManager->getCvar(Vars::xPosition).getFloatValue();
-	float ypos = cvarManager->getCvar(Vars::yPosition).getFloatValue();
-	float opacity = (cvarManager->getCvar(Vars::backgroundOpacity).getIntValue() / 255.0f);
+	float scale = 1.0;// cvarManager->getCvar( Var::scale ).getFloatValue();
+	float xpos = cvarManager->getCvar(Var::xPosition).getFloatValue();
+	float ypos = cvarManager->getCvar(Var::yPosition).getFloatValue();
+	float opacity = (cvarManager->getCvar(Var::backgroundOpacity).getIntValue() / 255.0f);
 
 	Vector2F Origin = {
 		0.0f,
@@ -259,8 +295,8 @@ void LobbyRanks::drawTable( CanvasWrapper& canvas )
 	auto drawCell = [&]( const Table::Cell& cell, size_t r, size_t c ) {
 		auto cellOrigin = TableOrigin + table.getCellOrigin( r, c );
 		auto color = cell.color;
-		/*if( c != playListIndex + 1 )
-			color *= 0.8;*/
+		/*if( c != 0 && c != playListIndex + 1 )
+			color.A *= 0.8;*/
 		
 		auto bg = cell.backgroundColor;
 		bg.A = 200;
@@ -311,6 +347,20 @@ void LobbyRanks::drawTable( CanvasWrapper& canvas )
 		}*/
 	};
 	table.forEach( drawCell );
+}
+
+void LobbyRanks::debugPrint()
+{
+	static const auto vars = {
+		Var::enabled, Var::shown, Var::scoreboardOpen,
+		Var::backgroundOpacity, Var::xPosition, Var::yPosition,
+		Var::scale };
+
+	std::stringstream ss;
+	ss << std::endl;
+	for( const auto& v : vars )
+		ss << '\t' << v << ": " << cvarManager->getCvar(v).getStringValue() << std::endl;
+	cvarManager->log( ss.str() );
 }
 
 #pragma endregion

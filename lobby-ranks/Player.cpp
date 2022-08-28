@@ -2,7 +2,7 @@
 
 #include "util.h"
 
-using namespace jlg::rl::lobby_ranks;
+using namespace jlg;
 
 //----------------------------------------------------------
 //                      CONSTRUCTORS

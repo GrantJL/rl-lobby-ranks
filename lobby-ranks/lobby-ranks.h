@@ -10,24 +10,28 @@
 
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
-namespace jlg { namespace rl { namespace lobby_ranks {
+namespace jlg {
 
 class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginSettingsWindow/*, public BakkesMod::Plugin::PluginWindow*/
 {
+	//------------------- STATIC VARIABLES ---------------------
 	public:
-		static const char* OnOpenScoreboard;
-		static const char* OnCloseScoreboard;
-		static const char* OnTeamChanged;
-		static const char* GetBotName;
-		static const char* PlayerLeft;
-		static const char* OnAllTeamsCreated;
-		static const char* OnMatchEnded;
-		static const char* ReplayEnd;
-		static const char* ReplayBegin;
+		struct GameEvent {
+			static const char* OnOpenScoreboard;
+			static const char* OnCloseScoreboard;
+			static const char* OnTeamChanged;
+			static const char* GetBotName;
+			static const char* PlayerLeft;
+			static const char* OnAllTeamsCreated;
+			static const char* OnMatchEnded;
+			static const char* ReplayEnd;
+			static const char* ReplayBegin;
+		};
 
-		struct Vars {
+		struct Var {
 			static const char* enabled;
-			static const char* refresh;
+			static const char* shown;
+			static const char* scoreboardOpen;
 
 			static const char* backgroundOpacity;
 			static const char* xPosition;
@@ -35,31 +39,42 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 			static const char* scale;
 
 		};
+		struct Command {
+			static const char* toggleShow;
+			static const char* refresh;
+
+			static const char* debug;
+		};
 		struct Input {
-			static const char* enabled;
+			static const char* toggleShow;
 			static const char* refreshL;
 			static const char* refreshR;
 		};
 
-		const std::list<jlg::rl::lobby_ranks::Playlist> Playlists = {
-			jlg::rl::lobby_ranks::Playlist::Solo,
-			jlg::rl::lobby_ranks::Playlist::Twos,
-			jlg::rl::lobby_ranks::Playlist::Threes,
-			jlg::rl::lobby_ranks::Playlist::Tournament };
+		const std::list<jlg::Playlist> Playlists = {
+			jlg::Playlist::Solo,
+			jlg::Playlist::Twos,
+			jlg::Playlist::Threes,
+			jlg::Playlist::Tournament };
 
+	//------------------- BakkesModPlugin ----------------------
 	public:
 		virtual void onLoad();
 		virtual void onUnload();
 
+	//----------------- PluginSettingsWindow -------------------
+	public:
 		virtual void RenderSettings();
 		virtual std::string GetPluginName();
-		virtual void SetImGuiContext(uintptr_t ctx);
+		virtual void SetImGuiContext( uintptr_t ctx );
 
+	//------------------- INSTANCE METHODS ---------------------
 	private:
 		void bindEvent( const char* event, const std::function<void()>& f );
 
 		void refresh();
 		void updatePlayers();
+
 		Table getTable();
 		void resizeTable( CanvasWrapper c );
 
@@ -67,20 +82,28 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		ServerWrapper getActiveGameServer();
 
 		bool isEnabled();
-		bool setEnabled(bool enabled);
+		bool setEnabled( bool enabled );
+		bool isVisible();
+		bool setVisible( bool visible );
+		bool isScoreboardOpen();
+		bool setScoreboardOpen( bool open );
 
-		// For each column:
-		//     drawColor( table[x][y].color );
-		//     if( x != 0 && playlist != mmrWrapper.GetCurrentPlaylist() )
-		//         drawColor *= 0.75;
-		void render(CanvasWrapper canvas);
+		void render( CanvasWrapper canvas );
 		void drawTable( CanvasWrapper& canvas );
-	
+
+		void debugPrint();
+
+	//------------------ INSTANCE VARIABLES --------------------
 	private:
+		// Flag to indicate table sizing need update using CanvasWrapper
 		bool recalculate = false;
-		std::list<Player> players;
+
 		Table table;
-		std::shared_ptr<bool> enabled = std::make_shared<bool>(true);
+		std::list<Player> players;
+
+		std::shared_ptr<bool> enabled = std::make_shared<bool>( true );
+		std::shared_ptr<bool> visible = std::make_shared<bool>( false );
+		std::shared_ptr<bool> sbOpen  = std::make_shared<bool>( false );
 };
 
-}; }; }; // END namespace jlg::rl::lobby_ranks
+}; // END namespace jlg

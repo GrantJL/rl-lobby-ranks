@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <sstream>
 
-using namespace jlg::rl::lobby_ranks;
+using namespace jlg;
 
 template<>
 LinearColor util::toColor<Team>( const Team& v )

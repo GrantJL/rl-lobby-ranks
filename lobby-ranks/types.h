@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace jlg { namespace rl { namespace lobby_ranks {
+namespace jlg {
 
 #pragma region Types
 
@@ -128,8 +128,8 @@ namespace String
 		static const std::string SupersonicLegend { "SSL" };
 	} // END namespace Rank
 
-} // END namespace Color
+} // END namespace String
 
 #pragma endregion
 
-} } } // END namespace jlg::rl::lobby_ranks
+} // END namespace jlg

@@ -25,7 +25,7 @@
 //}
 
 
-namespace jlg { namespace rl { namespace lobby_ranks {
+namespace jlg {
 
 namespace util {
 
@@ -63,6 +63,4 @@ std::string toString<Playlist>( const Playlist& v );
 
 #pragma endregion
 
-} // END namespace util
-
-} } } // END namespace jlg::rl::lobby_ranks
+}; }; // END namespace jlg::util

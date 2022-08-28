@@ -5,7 +5,7 @@
 #include "types.h"
 #include "Table.h"
 
-namespace jlg { namespace rl { namespace lobby_ranks {
+namespace jlg {
 
 	struct PlaylistStats {
 		Playlist playlist;
@@ -54,4 +54,4 @@ namespace jlg { namespace rl { namespace lobby_ranks {
 		//----------------------------------------------------------
 	};
 
-}; }; }; // END namespace jlg::rl::lobby_ranks
+}; // END namespace jlg

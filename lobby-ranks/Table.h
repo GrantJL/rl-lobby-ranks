@@ -6,6 +6,8 @@
 #include <vector>
 #include <functional>
 
+namespace jlg {
+
 /**
  * JLG TODO Document Table
  */
@@ -62,17 +64,11 @@ class Table
 				}
 				void setPadding( float pad )
 				{
-					padTop = pad;
-					padRight = pad;
-					padBottom = pad;
-					padLeft = pad;
+					setPadding( pad, pad, pad, pad );
 				}
 				void setPadding( float h, float v )
 				{
-					padTop = v;
-					padRight = h;
-					padBottom = v;
-					padLeft = h;
+					setPadding( v, h, v, h );
 				}
 				void setPadding( float t, float r, float b, float l )
 				{
@@ -81,7 +77,7 @@ class Table
 					padBottom = b;
 					padLeft = l;
 				}
-			};
+			}; // END struct Cell
 			typedef std::vector<Cell> Row;
 			typedef std::vector<std::reference_wrapper<Cell>> Column;
 			typedef std::vector<Row> Rows;
@@ -126,3 +122,5 @@ class Table
 	private:
 		Rows table;
 };
+
+}; // END namespace jlg
