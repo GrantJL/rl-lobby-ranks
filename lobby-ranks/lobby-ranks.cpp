@@ -94,33 +94,34 @@ void LobbyRanks::RenderSettings()
 	if (ImGui::SliderFloat("Table Position Y", &yLoc, 0.0, 1.0)) {
 		yLocCvar.setValue(yLoc);
 	}
+	
+	// JLG TODO Select and Re-order displayed playlists
+	//if (ImGui::TreeNode("Playlist order"))
+	//{
+	//	// Simple reordering
+	//	/*HelpMarker(
+	//		"We don't use the drag and drop api at all here! "
+	//		"Instead we query when the item is held but not hovered, and order items accordingly.");*/
+	//	std::vector<std::pair<Playlist, std::string>> playlistItems;
+	//	for( auto playlist : PlaylistValues )
+	//		playlistItems.push_back( {playlist, util::toString<Playlist>(playlist)} );
 
-	if (ImGui::TreeNode("Playlist order"))
-	{
-		// Simple reordering
-		/*HelpMarker(
-			"We don't use the drag and drop api at all here! "
-			"Instead we query when the item is held but not hovered, and order items accordingly.");*/
-		std::vector<std::pair<Playlist, std::string>> playlistItems;
-		for( auto playlist : PlaylistValues )
-			playlistItems.push_back( {playlist, util::toString<Playlist>(playlist)} );
+	//	for (int n = 0; n < playlistItems.size(); n++)
+	//	{
+	//		ImGui::Selectable( playlistItems[n].second.c_str() );
 
-		for (int n = 0; n < playlistItems.size(); n++)
-		{
-			ImGui::Selectable( playlistItems[n].second.c_str() );
-
-			if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
-			{
-				int n_next = n + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
-				if (n_next >= 0 && n_next < playlistItems.size())
-				{
-					std::swap( playlistItems[n], playlistItems[n_next] );
-					ImGui::ResetMouseDragDelta();
-				}
-			}
-		}
-		ImGui::TreePop();
-	}
+	//		if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
+	//		{
+	//			int n_next = n + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
+	//			if (n_next >= 0 && n_next < playlistItems.size())
+	//			{
+	//				std::swap( playlistItems[n], playlistItems[n_next] );
+	//				ImGui::ResetMouseDragDelta();
+	//			}
+	//		}
+	//	}
+	//	ImGui::TreePop();
+	//}
 }
 
 #pragma endregion
