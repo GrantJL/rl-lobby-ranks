@@ -5,6 +5,8 @@ This is a bakkesmod plugin which can display a table of players in the current m
 
 This plugin was inspired by [Yoni's Playlist Rank Viewer](https://bakkesplugins.com/plugins/view/125)([Github](https://github.com/yonilerner/bakkesmod-playlist-rank-viewer/)) plugin, which this was initially based off of.
 
+You can view and install the plugin on bakkesmod plugins here: [Lobby Ranks](https://bakkesplugins.com/plugins/view/348)
+
 ## About
 The plugin is a table of players in the current match, it displays each players rank, mmr and games player in various playlists. 
 
