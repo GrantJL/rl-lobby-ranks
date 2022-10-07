@@ -48,11 +48,7 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 
 			static const char* debug;
 		};
-		struct Input {
-			static const char* toggleShow;
-			static const char* refreshL;
-			static const char* refreshR;
-		};
+		struct Input {};
 
 		struct Anchor {
 			enum class Horizontal {
