@@ -13,7 +13,12 @@ The plugin is a table of players in the current match, it displays each players 
 ## Usage
 You will want to adjust the plugin's settings in Bakkesmod. You can do this by pressing F2 and navigating to the settings tab. Selecting "Lobby Ranks" will display the settings.
 
-By default pressing `P` will toggle the ranked table display. If enabled in settings, the table will be displayed whenever you have the scoreboard open.
+In here you can:
+- Enable the plugin
+- Set it so the Lobby Ranks table displays when the scoreboard is open
+- Adjust the table's anchor and position on screen
+
+Additionally, you can bind the `jlg_lobby_rank_toggle` command in the BakkesMod Bindings tab if you wish to toggle the table on key press.
 
 ## Future Updates
 Currently the plugin only displays the 1s, 2s, 3s and Tournament playlist ranks. Plans are in place to allow user's to choose which playlists to display and in what order.
