@@ -7,6 +7,8 @@ This plugin was inspired by [Yoni's Playlist Rank Viewer](https://bakkesplugins.
 
 You can view and install the plugin on bakkesmod plugins here: [Lobby Ranks](https://bakkesplugins.com/plugins/view/348)
 
+Optionally, download the latest release from [GitHub - LobbyRanks Releases](https://github.com/GrantJL/rl-lobby-ranks/releases), then copy the `lobby-ranks.dll` file to `%appdata%\bakkesmod\bakkesmod\plugins\`
+
 ## About
 The plugin is a table of players in the current match, it displays each players rank, mmr and games player in various playlists. 
 
