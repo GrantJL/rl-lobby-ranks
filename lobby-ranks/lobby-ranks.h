@@ -40,7 +40,7 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 			static const char* xAnchor;
 			static const char* yAnchor;
 			static const char* scale;
-
+			static const char* displayPlatform;
 		};
 		struct Command {
 			static const char* toggleShow;
@@ -70,15 +70,15 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 			jlg::Playlist::Tournament };
 
 	//------------------- BakkesModPlugin ----------------------
-	public:
-		virtual void onLoad();
-		virtual void onUnload();
+	private:
+		virtual void onLoad() override;
+		virtual void onUnload() override;
 
 	//----------------- PluginSettingsWindow -------------------
 	public:
-		virtual void RenderSettings();
-		virtual std::string GetPluginName();
-		virtual void SetImGuiContext( uintptr_t ctx );
+		virtual void RenderSettings() override;
+		virtual std::string GetPluginName() override;
+		virtual void SetImGuiContext( uintptr_t ctx ) override;
 
 	//------------------- INSTANCE METHODS ---------------------
 	private:
@@ -96,6 +96,8 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 
 		bool isEnabled();
 		bool setEnabled( bool enabled );
+		bool isPlatformDisplayed();
+		bool setPlatformDisplayed( bool enabled );
 		bool isVisible();
 		bool setVisible( bool visible );
 		bool isScoreboardOpen();
@@ -117,6 +119,7 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		std::list<Player> players;
 
 		std::shared_ptr<bool> enabled = std::make_shared<bool>( true );
+		std::shared_ptr<bool> displayPlatform = std::make_shared<bool>( true );
 		std::shared_ptr<bool> visible = std::make_shared<bool>( false );
 		std::shared_ptr<bool> showWithSb  = std::make_shared<bool>( false );
 		std::shared_ptr<bool> sbOpen  = std::make_shared<bool>( false );

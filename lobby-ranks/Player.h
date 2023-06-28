@@ -29,6 +29,7 @@ namespace jlg {
 			std::string name;
 			std::string uuid;
 			Team team;
+			Platform platform;
 			bool isBot;
 			bool isCurrentPlayer;
 

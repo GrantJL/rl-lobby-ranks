@@ -55,6 +55,41 @@ enum class Rank
 	Unranked = 0,
 };
 
+enum class Platform
+{
+	Unknown,
+	Steam,
+	Playstation,
+	Xbox,
+	Nintendo,
+	Epic,
+};
+static Platform toPlatform( OnlinePlatform platform )
+{
+	switch( platform )
+	{
+		case OnlinePlatform_Steam:
+			return Platform::Steam;
+		case OnlinePlatform_PS4:
+		case OnlinePlatform_PS3:
+			return Platform::Playstation;
+		case OnlinePlatform_Dingo:
+			return Platform::Xbox;
+		case OnlinePlatform_OldNNX:
+		case OnlinePlatform_NNX:
+			return Platform::Nintendo;
+		case OnlinePlatform_PsyNet:
+		case OnlinePlatform_Epic:
+			return Platform::Epic;
+		default:
+		case OnlinePlatform_QQ:
+		case OnlinePlatform_Deleted:
+		case OnlinePlatform_WeGame:
+		case OnlinePlatform_MAX:
+			return Platform::Unknown;
+	}
+}
+
 #pragma endregion
 
 #pragma region Type Values

@@ -59,6 +59,21 @@ LinearColor util::toColor<SkillRank>( const SkillRank& v )
 }
 
 template<>
+LinearColor util::toColor<Platform>( const Platform& v )
+{
+	switch( v )
+	{
+		default:
+		case Platform::Unknown:     return LinearColor();
+		case Platform::Steam:       return LinearColor{ 142, 150, 179, 255};
+		case Platform::Playstation: return LinearColor{  30,  66, 147, 255};
+		case Platform::Xbox:        return LinearColor{  61, 117,  35, 255};
+		case Platform::Nintendo:    return LinearColor{ 205,  53,  32, 255};
+		case Platform::Epic:        return LinearColor{ 164, 164, 164, 255};;
+	}
+}
+
+template<>
 std::string util::toString<double>( const double& v )
 {
 	std::stringstream ss;
@@ -127,5 +142,19 @@ std::string util::toString<Playlist>( const Playlist& playlist )
 		case Playlist::Dropshot:   return String::Playlist::Dropshot;
 		case Playlist::Snowday:    return String::Playlist::Snowday;
 		case Playlist::Tournament: return String::Playlist::Tournament;
+	}
+}
+template<>
+std::string util::toString<Platform>( const Platform& v )
+{
+	switch( v )
+	{
+		default:
+		case Platform::Unknown:     return "";
+		case Platform::Steam:       return "Steam";
+		case Platform::Playstation: return "PlayStation";
+		case Platform::Xbox:        return "Xbox";
+		case Platform::Nintendo:    return "Nintendo";
+		case Platform::Epic:        return "Epic";
 	}
 }

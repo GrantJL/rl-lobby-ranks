@@ -49,7 +49,7 @@ const char* LobbyRanks::Command::debug =      "jlg_debug";
 void LobbyRanks::onLoad()
 {
 	// Regular Variables
-	auto cvar_enab = cvarManager->registerCvar( Var::enabled,            "1",   "Enable Lobby Ranks", true,  true, 0, true, 1,    true );
+	auto cvar_enab = cvarManager->registerCvar( Var::enabled,            "1",   "Enable Lobby Ranks",             true,  true, 0, true, 1,    true );
 	auto cvar_show = cvarManager->registerCvar( Var::showWithScoreboard, "1",   "Show Lobby Ranks W/ Scoreboard", true,  true, 0, true, 1,    true );
 	auto cvar_back = cvarManager->registerCvar( Var::backgroundOpacity,  "200", "Lobby Ranks Background opacity", false, true, 0, true, 255,  true );
 	auto cvar_xPos = cvarManager->registerCvar( Var::xPosition,          "0",   "Lobby Ranks Table Position X",   false, true, 0, true, 1.0f, true );
@@ -212,7 +212,7 @@ void LobbyRanks::updatePlayers()
 Table LobbyRanks::getTable()
 {
 	Table ptable;
-	int l = 40; int d = 20; int a = 255;
+	float l = 40; float d = 20; float a = 255;
 	LinearColor light{ l, l, l, a };
 	LinearColor dark{ d, d, d, a };
 	LinearColor black{ 0, 0, 0, a };

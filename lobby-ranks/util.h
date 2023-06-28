@@ -41,6 +41,8 @@ template<>
 LinearColor util::toColor<Team>( const Team& v );
 template<>
 LinearColor util::toColor<SkillRank>( const SkillRank& v );
+template<>
+LinearColor util::toColor<Platform>( const Platform& v );
 
 #pragma endregion
 
@@ -60,6 +62,8 @@ template<>
 std::string toString<SkillRank>( const SkillRank& v );
 template<>
 std::string toString<Playlist>( const Playlist& v );
+template<>
+std::string toString<Platform>( const Platform& v );
 
 #pragma endregion
 

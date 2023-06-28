@@ -15,6 +15,7 @@ Player::Player(  const std::shared_ptr<GameWrapper>& gw, PriWrapper wrapper )
 	team = Team( wrapper.GetTeamNum() );
 	isCurrentPlayer = wrapper.IsPlayerOwned();
 	isBot = wrapper.GetbBot();
+	platform = toPlatform( wrapper.GetPlatform() );
 
 	MMRWrapper mw = gw->GetMMRWrapper();
 	for( const Playlist& p : PlaylistValues )
@@ -48,8 +49,8 @@ std::list<Table::Row> Player::row( LinearColor bg,
 	rankColumn.back().setPadding( pad.Y, pad.X, 0.0f, pad.X );
 	mmrColumn.push_back( Table::Cell( name, nameColor, bg, Table::Align::Left ) );
 	mmrColumn.back().setPadding( pad.X, 0.0f );
-	gamesColumn.push_back( Table::Cell( "", nameColor, bg ) );
-	gamesColumn.back().setPadding( 0.0f, pad.X, pad.Y, pad.X );
+	gamesColumn.push_back( Table::Cell( util::toString(platform), util::toColor(platform), bg, Table::Align::Left ) );
+	gamesColumn.back().setPadding( pad.X, 0.0 );
 
 	for( const auto playlist : p )
 	{
