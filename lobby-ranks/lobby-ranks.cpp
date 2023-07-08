@@ -19,6 +19,57 @@ BAKKESMOD_PLUGIN( jlg::LobbyRanks, "Lobby Ranks", plugin_version, PLUGINTYPE_FRE
 
 using namespace jlg;
 
+#pragma region Example table
+Table LobbyRanks::buildExampleTable()
+{
+	Table ptable;
+	Vector2F pad{ 8.0f, 2.5f };
+	Config* cfg = config;
+
+	auto fg = cfg->tableFg();
+	auto bg = cfg->tableBg();
+	auto light = cfg->tableEven();
+	auto dark = cfg->tableOdd();
+
+	auto getHeader = [&]() {
+		Table::Row row;
+		row.push_back( Table::Cell( "Name", fg, bg, Table::Align::Left ) );
+		row.back().setPadding( pad.X, pad.Y );
+		for( auto p : cfg->getPlaylists() )
+		{
+			row.push_back( Table::Cell( util::toString<Playlist>(p), fg, bg ) );
+			row.back().setPadding( pad.X, pad.Y );
+		}
+		return row;
+	};
+
+	std::list<Player> exmaplePlayers = {
+		Player( "Charlie",   Team::Orange, Platform::Unknown,     false, false, Rank::Unranked, Rank::Bronze1 ),
+		Player( "Foxtrot",   Team::Orange, Platform::Steam,       true,  false, Rank::Silver1, Rank::Gold1 ),
+		Player( "Juliet",    Team::Orange, Platform::Playstation, false, false, Rank::Platinum1, Rank::Diamond1 ),
+		Player( "Mike",      Team::Blue,   Platform::Xbox,        false, false, Rank::Diamond3, Rank::Champ2 ),
+		Player( "Oscar",     Team::Blue,   Platform::Nintendo,    false, false, Rank::GrandChamp2, Rank::GrandChamp3 ),
+		Player( "Sierra",    Team::Blue,   Platform::Epic,        false, false, Rank::SupersonicLegend, Rank::SupersonicLegend ),
+	};
+
+	ptable.addRow( getHeader() );
+	bool even = true;
+	for( auto& player : exmaplePlayers )
+	{
+		auto playerRows = player.row(
+			(even ? light : dark),
+			cfg->getPlaylists(),
+			pad );
+		for( auto& row : playerRows )
+			ptable.addRow( row );
+		even = !even;
+	}
+
+	return ptable;
+};
+#pragma endregion
+
+
 const char* LobbyRanks::GameEvent::OnOpenScoreboard =  "Function TAGame.GFxData_GameEvent_TA.OnOpenScoreboard";
 const char* LobbyRanks::GameEvent::OnCloseScoreboard = "Function TAGame.GFxData_GameEvent_TA.OnCloseScoreboard";
 const char* LobbyRanks::GameEvent::OnTeamChanged =     "Function TAGame.PRI_TA.OnTeamChanged";
@@ -48,16 +99,21 @@ const char* LobbyRanks::Command::debug =      "jlg_debug";
 
 void LobbyRanks::onLoad()
 {
+	Config::initialize( cvarManager );
+	config = Config::instance();
+
 	// Regular Variables
 	auto cvar_enab = cvarManager->registerCvar( Var::enabled,            "1",   "Enable Lobby Ranks",             true,  true, 0, true, 1,    true );
 	auto cvar_show = cvarManager->registerCvar( Var::showWithScoreboard, "1",   "Show Lobby Ranks W/ Scoreboard", true,  true, 0, true, 1,    true );
 	auto cvar_back = cvarManager->registerCvar( Var::backgroundOpacity,  "200", "Lobby Ranks Background opacity", false, true, 0, true, 255,  true );
-	auto cvar_xPos = cvarManager->registerCvar( Var::xPosition,          "0",   "Lobby Ranks Table Position X",   false, true, 0, true, 1.0f, true );
-	auto cvar_yPos = cvarManager->registerCvar( Var::yPosition,          "0",   "Lobby Ranks Table Position Y",   false, true, 0, true, 1.0f, true );
+	auto cvar_xPos = cvarManager->registerCvar( Var::xPosition,          "0.7", "Lobby Ranks Table Position X",   false, true, 0, true, 1.0f, true );
+	auto cvar_yPos = cvarManager->registerCvar( Var::yPosition,          "0.5", "Lobby Ranks Table Position Y",   false, true, 0, true, 1.0f, true );
 	auto cvar_xAnc = cvarManager->registerCvar( Var::xAnchor,            "0",   "Lobby Ranks Table Anchor X",     false, true, 0, true, 2,    true );
-	auto cvar_yAnc = cvarManager->registerCvar( Var::yAnchor,            "0",   "Lobby Ranks Table Anchor Y",     false, true, 0, true, 2,    true );
+	auto cvar_yAnc = cvarManager->registerCvar( Var::yAnchor,            "1",   "Lobby Ranks Table Anchor Y",     false, true, 0, true, 2,    true );
 	auto cvar_scal = cvarManager->registerCvar( Var::scale,              "1",   "Lobby Ranks Overlay scale",      false, true, 0.5, true, 3,  true );
-	auto cvar_play = cvarManager->registerCvar( Var::playlists, "10 11 13 34", "Lobby Ranks shown playlists", false );
+	// auto cvar_play = cvarManager->registerCvar( Var::playlists, "10 11 13 34",  "Lobby Ranks shown playlists",    false );
+
+	exampleTable = buildExampleTable();
 
 	cvar_enab.addOnValueChanged(
 		[this]( std::string old, CVarWrapper cv ) {
@@ -122,7 +178,7 @@ void LobbyRanks::onLoad()
 
 	gameWrapper->RegisterDrawable( std::bind( &LobbyRanks::render, this, std::placeholders::_1 ) );
 
-	// Sync stored plugin settings
+	// Sync stored plugin settings // Always delay config loading, if we do it here it will initilize to the registered defaults
 	gameWrapper->SetTimeout(
 		[this]( GameWrapper* gw ) { sync(); },
 		1 );
@@ -164,6 +220,8 @@ void LobbyRanks::sync()
 		anchorOffset->X = cvar_xAnchor.getFloatValue() / 2.0f;
 		anchorOffset->Y = cvar_yAnchor.getFloatValue() / 2.0f;
 	}
+
+	config->loadFromCfg();
 
 	// JLG TODO Sync other cvars
 }
@@ -212,19 +270,20 @@ void LobbyRanks::updatePlayers()
 Table LobbyRanks::getTable()
 {
 	Table ptable;
-	float l = 40; float d = 20; float a = 255;
-	LinearColor light{ l, l, l, a };
-	LinearColor dark{ d, d, d, a };
-	LinearColor black{ 0, 0, 0, a };
+	auto fg = config->tableFg();
+	auto bg = config->tableBg();
+	auto light = config->tableEven();
+	auto dark = config->tableOdd();
+	auto playlists = config->getPlaylists();
 	Vector2F pad{ 8.0f, 2.5f };
 
 	auto getHeader = [&]() {
 		Table::Row row;
-		row.push_back( Table::Cell( "Name", Color::White, black, Table::Align::Left ) );
+		row.push_back( Table::Cell( "Name", fg, bg , Table::Align::Left ) );
 		row.back().setPadding( pad.X, pad.Y );
-		for( auto p : LobbyRanks::Playlists )
+		for( auto p : playlists )
 		{
-			row.push_back( Table::Cell( util::toString<Playlist>(p), Color::White, black ) );
+			row.push_back( Table::Cell( util::toString<Playlist>(p), fg, bg ) );
 			row.back().setPadding( pad.X, pad.Y );
 		}
 		return row;
@@ -236,7 +295,7 @@ Table LobbyRanks::getTable()
 	{
 		auto playerRows = player.row(
 			(even ? light : dark),
-			LobbyRanks::Playlists,
+			playlists,
 			pad );
 		for( auto& row : playerRows )
 			ptable.addRow( row );
@@ -246,19 +305,25 @@ Table LobbyRanks::getTable()
 	return ptable;
 }
 
-void LobbyRanks::resizeTable( CanvasWrapper c )
+void LobbyRanks::resizeTable( CanvasWrapper c, Table& t )
 {
 	auto calcSize = [&]( Table::Cell& cell, size_t row, size_t col ) {
 		cell.valueSize = c.GetStringSize( cell.value );
 		cell.size = cell.valueSize;
 	};
-	table.forEach( calcSize );
-	table.fitSize();
-	table.realign();
-	recalculate = false;
+	t.forEach( calcSize );
+	t.fitSize();
+	t.realign();
 }
 
-void LobbyRanks::onUnload() {}
+void LobbyRanks::onUnload()
+{
+	cvarManager->backupCfg( "back_jlg_cfg");
+
+	Config* c = Config::instance();
+	delete c;
+	c = nullptr;
+}
 
 void LobbyRanks::render( CanvasWrapper canvas )
 {
@@ -266,6 +331,17 @@ void LobbyRanks::render( CanvasWrapper canvas )
 
 	if( isVisible() || (isScoreboardOpen() && isShownWithSb()) )
 		drawTable( canvas );
+
+	if( config->isExampleDisplayed() )
+	{
+		if( config->isRefreshExampleTable() )
+		{
+			exampleTable = buildExampleTable();
+			resizeTable( canvas, exampleTable );
+			config->isRefreshExampleTable( false );
+		}
+		drawTable( canvas, exampleTable );
+	}
 }
 
 bool LobbyRanks::isEnabled()
@@ -308,9 +384,15 @@ bool LobbyRanks::setShowWithSb( bool showWithSb )
 void LobbyRanks::drawTable( CanvasWrapper& canvas )
 {
 	if( recalculate )
-		resizeTable( canvas );
+	{
+		resizeTable( canvas, table );
+		recalculate = false;
+	}
 
 	if( table.empty() ) return;
+
+	drawTable( canvas, table );
+	return;
 
 	auto mw = gameWrapper->GetMMRWrapper();
 	jlg::Playlist p = jlg::Playlist( mw.GetCurrentPlaylist() );
@@ -356,25 +438,59 @@ void LobbyRanks::drawTable( CanvasWrapper& canvas )
 		canvas.SetPosition( cellOrigin );
 		canvas.FillBox( cell.paddedSize() );
 
-		bool debugDraw = false;
-		if( debugDraw )
-		{
-			// Checkboard cells
-			if( tickTock ){
-				canvas.SetPosition( cellOrigin );
-				canvas.SetColor( LinearColor{ 255, 255, 255, 50 } );
-				canvas.FillBox( cell.paddedSize() );
-			}
-			// Draw Padding Inner
-			canvas.SetColor( LinearColor{ 0, 255, 255, 80 } );
-			canvas.SetPosition( cellOrigin + Vector2F{ cell.padLeft, cell.padTop } );
-			canvas.FillBox( cell.size );
+		canvas.SetColor( color );
+		canvas.SetPosition( cellOrigin + Vector2F{ cell.padLeft, cell.padTop } + cell.valueOffset );
+		canvas.DrawString( cell.value, scale, scale );
+		tickTock = !tickTock;
 
-			// Draw Value Size
-			canvas.SetColor( LinearColor{ 255, 0, 255, 80 } );
-			canvas.SetPosition( cellOrigin + Vector2F{ cell.padLeft, cell.padTop } + cell.valueOffset );
-			canvas.FillBox( cell.valueSize );
+		// Draw lines
+		if( c != 0 )
+		{
+			canvas.SetColor( 255, 255, 255, 25 );
+			canvas.DrawLine( cellOrigin, cellOrigin + Vector2F{ 0.0f, cell.paddedSize().Y }, 1.0f );
 		}
+		/*if( (r-1) % 3 == 0 )
+		{
+			canvas.SetColor( 255, 255, 255, 25 );
+			canvas.DrawLine( cellOrigin, cellOrigin + Vector2F{ cell.paddedSize().X, 0.0f }, 1.0f );
+		}*/
+	};
+	table.forEach( drawCell );
+}
+
+void LobbyRanks::drawTable( CanvasWrapper& canvas, Table& table )
+{
+	if( table.empty() ) return;
+
+	float scale = 1.0;// cvarManager->getCvar( Var::scale ).getFloatValue();
+	float xpos = cvarManager->getCvar(Var::xPosition).getFloatValue();
+	float ypos = cvarManager->getCvar(Var::yPosition).getFloatValue();
+	float opacity = (cvarManager->getCvar(Var::backgroundOpacity).getIntValue() / 255.0f);
+
+	Vector2F Origin = {
+		0.0f,
+		0.0f
+	};
+	Vector2F CanvasSize = {
+		canvas.GetSize().X,
+		canvas.GetSize().Y
+	};
+
+	auto xp = cvarManager->getCvar( Var::xPosition );
+	auto yp = cvarManager->getCvar( Var::yPosition );
+	Vector2F TableOrigin = CanvasSize * (*tablePosition);
+	TableOrigin -= table.size() * (*anchorOffset);
+
+	bool tickTock = true;
+	auto drawCell = [&]( const Table::Cell& cell, size_t r, size_t c ) {
+		auto cellOrigin = TableOrigin + table.getCellOrigin( r, c );
+		auto color = cell.color;
+
+		auto bg = cell.backgroundColor;
+		bg.A = 200;
+		canvas.SetColor( bg );
+		canvas.SetPosition( cellOrigin );
+		canvas.FillBox( cell.paddedSize() );
 
 		canvas.SetColor( color );
 		canvas.SetPosition( cellOrigin + Vector2F{ cell.padLeft, cell.padTop } + cell.valueOffset );

@@ -69,7 +69,7 @@ LinearColor util::toColor<Platform>( const Platform& v )
 		case Platform::Playstation: return LinearColor{  30,  66, 147, 255};
 		case Platform::Xbox:        return LinearColor{  61, 117,  35, 255};
 		case Platform::Nintendo:    return LinearColor{ 205,  53,  32, 255};
-		case Platform::Epic:        return LinearColor{ 164, 164, 164, 255};;
+		case Platform::Epic:        return LinearColor{ 164, 164, 164, 255};
 	}
 }
 
@@ -156,5 +156,22 @@ std::string util::toString<Platform>( const Platform& v )
 		case Platform::Xbox:        return "Xbox";
 		case Platform::Nintendo:    return "Nintendo";
 		case Platform::Epic:        return "Epic";
+	}
+}
+
+std::string util::toFullName( const Playlist& v )
+{
+	switch( v )
+	{
+		default:                   return "";
+		case Playlist::Unranked:   return "Unranked";
+		case Playlist::Solo:       return "Solo";
+		case Playlist::Twos:       return "Twos";
+		case Playlist::Threes:     return "Threes";
+		case Playlist::Hoops:      return "Hoops";
+		case Playlist::Rumble:     return "Rumble";
+		case Playlist::Dropshot:   return "Dropshot";
+		case Playlist::Snowday:    return "Snowday";
+		case Playlist::Tournament: return "Tournament";
 	}
 }

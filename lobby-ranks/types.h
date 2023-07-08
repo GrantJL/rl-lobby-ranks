@@ -11,8 +11,10 @@ namespace jlg {
 enum class Team
 {
 	Blue = 0,
-	Orange = 1
+	Orange = 1,
+	None = 2
 };
+const static auto TeamValues = { Team::Blue, Team::Orange, Team::None };
 
 enum class Playlist
 {
@@ -54,6 +56,7 @@ enum class Rank
 	Bronze1 = 1,
 	Unranked = 0,
 };
+const static auto RankDivValues = { Rank::SupersonicLegend, Rank::GrandChamp3, Rank::GrandChamp2, Rank::GrandChamp1, Rank::Champ3, Rank::Champ2, Rank::Champ1, Rank::Diamond3, Rank::Diamond2, Rank::Diamond1, Rank::Platinum3, Rank::Platinum2, Rank::Platinum1, Rank::Gold3, Rank::Gold2, Rank::Gold1, Rank::Silver3, Rank::Silver2, Rank::Silver1, Rank::Bronze3, Rank::Bronze2, Rank::Bronze1, Rank::Unranked };
 
 enum class Platform
 {
@@ -64,6 +67,8 @@ enum class Platform
 	Nintendo,
 	Epic,
 };
+const static auto PlatformValues = { Platform::Unknown, Platform::Steam, Platform::Playstation, Platform::Xbox, Platform::Nintendo, Platform::Epic };
+
 static Platform toPlatform( OnlinePlatform platform )
 {
 	switch( platform )
@@ -117,6 +122,16 @@ namespace Color
 		static const LinearColor GrandChamp       { 255,  93,  93, 255 };
 		static const LinearColor SupersonicLegend { 255, 111, 219, 255 };
 	} // END namespace Rank
+
+	namespace Platform
+	{
+		static const LinearColor Unknown          {   0,   0,   0,   0};
+		static const LinearColor Steam            { 142, 150, 179, 255};
+		static const LinearColor Playstation      {  30,  77, 182, 255};
+		static const LinearColor Xbox             {  61, 117,  35, 255};
+		static const LinearColor Nintendo         { 205,  53,  32, 255};
+		static const LinearColor Epic             { 164, 164, 164, 255};
+	}
 
 } // END namespace Color
 

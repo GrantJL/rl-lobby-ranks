@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "Player.h"
+#include "Config.h"
 
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
@@ -42,6 +43,7 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 			static const char* scale;
 			static const char* displayPlatform;
 		};
+
 		struct Command {
 			static const char* toggleShow;
 			static const char* refresh;
@@ -89,15 +91,13 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		void updatePlayers();
 
 		Table getTable();
-		void resizeTable( CanvasWrapper c );
+		void resizeTable( CanvasWrapper c, Table& table );
 
 		bool isInGame();
 		ServerWrapper getActiveGameServer();
 
 		bool isEnabled();
 		bool setEnabled( bool enabled );
-		bool isPlatformDisplayed();
-		bool setPlatformDisplayed( bool enabled );
 		bool isVisible();
 		bool setVisible( bool visible );
 		bool isScoreboardOpen();
@@ -108,7 +108,11 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		void render( CanvasWrapper canvas );
 		void drawTable( CanvasWrapper& canvas );
 
+		void drawTable( CanvasWrapper& canvas, Table& table );
+
 		void debugPrint();
+
+		Table buildExampleTable();
 
 	//------------------ INSTANCE VARIABLES --------------------
 	private:
@@ -116,7 +120,9 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		bool recalculate = false;
 
 		Table table;
+		Table exampleTable;
 		std::list<Player> players;
+		Config* config;
 
 		std::shared_ptr<bool> enabled = std::make_shared<bool>( true );
 		std::shared_ptr<bool> displayPlatform = std::make_shared<bool>( true );

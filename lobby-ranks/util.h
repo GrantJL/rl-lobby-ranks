@@ -65,6 +65,8 @@ std::string toString<Playlist>( const Playlist& v );
 template<>
 std::string toString<Platform>( const Platform& v );
 
+std::string toFullName( const Playlist& v );
+
 #pragma endregion
 
 }; }; // END namespace jlg::util
