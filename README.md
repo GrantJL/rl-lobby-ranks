@@ -1,7 +1,7 @@
 # Lobby Ranks (Bakkesmod Rocket League plugin)
 This is a bakkesmod plugin which can display a table of players in the current match and their ranks across various playlists.
 
-![Image of the Lobby Ranks table as displayed in Rocket League](https://i.imgur.com/HEdLLvS.jpeg)
+![Image of the Lobby Ranks table as displayed in Rocket League](https://i.imgur.com/E8XE0SA.png)
 
 This plugin was inspired by [Yoni's Playlist Rank Viewer](https://bakkesplugins.com/plugins/view/125)([Github](https://github.com/yonilerner/bakkesmod-playlist-rank-viewer/)) plugin, which this was initially based off of.
 
