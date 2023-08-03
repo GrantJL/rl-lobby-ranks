@@ -13,6 +13,8 @@ Optionally, download the latest release from [GitHub - LobbyRanks Releases](http
 The plugin is a table of players in the current match, it displays each players rank, mmr and games player in various playlists. 
 
 ## Usage
+**Important:** Make sure you have `Show Player MMR on scoreboard` check in the Bakkesmod settings, under the Ranked tab. Also check `Show MMR in casual playlists` for casual mode support.
+
 You will want to adjust the plugin's settings in Bakkesmod. You can do this by pressing F2 and navigating to the settings tab. Selecting "Lobby Ranks" will display the settings.
 
 In here you can:
