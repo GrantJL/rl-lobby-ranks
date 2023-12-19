@@ -50,7 +50,7 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Norwegian BokmÃ¥l (Norway) resources
+// Norwegian Bokmål (Norway) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NOR)
 LANGUAGE LANG_NORWEGIAN, SUBLANG_NORWEGIAN_BOKMAL
@@ -62,8 +62,8 @@ LANGUAGE LANG_NORWEGIAN, SUBLANG_NORWEGIAN_BOKMAL
 //
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILD
-PRODUCTVERSION VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILD
+ FILEVERSION VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILD
+ PRODUCTVERSION VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILD
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -78,13 +78,13 @@ BEGIN
     BEGIN
         BLOCK "041404b0"
         BEGIN
-            VALUE "CompanyName", "TODO: <Company name>"
-            VALUE "FileDescription", "TODO: <File description>"
+            VALUE "CompanyName", "GrantJL (Github)"
+            VALUE "FileDescription", "LobbyRanks BakkesMod plugin"
             VALUE "FileVersion", VERSION_FULL
             VALUE "InternalName", "lobby-ranks.dll"
-            VALUE "LegalCopyright", "Copyright (C) 2020"
+            VALUE "LegalCopyright", "Copyright (C) 2023"
             VALUE "OriginalFilename", "lobby-ranks.dll"
-            VALUE "ProductName", "TODO: <Product name>"
+            VALUE "ProductName", "LobbyRanks"
             VALUE "ProductVersion", VERSION_FULL
         END
     END
@@ -94,7 +94,7 @@ BEGIN
     END
 END
 
-#endif    // Norwegian BokmÃ¥l (Norway) resources
+#endif    // Norwegian Bokmål (Norway) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

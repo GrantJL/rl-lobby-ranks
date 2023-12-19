@@ -28,6 +28,8 @@ The plugin is configurable:
   - Rumble
   - Snowday
 
+Plugin configuration is automatically saved to file, and restore on load.
+
 ## Usage
 **Important:** Make sure you have `Show Player MMR on scoreboard` check in the Bakkesmod settings, under the Ranked tab. Also check `Show MMR in casual playlists` for casual mode support.
 
@@ -55,6 +57,7 @@ Additionally, you can bind the `jlg_lobby_rank_toggle` command in the BakkesMod 
   - Team colours
   - Rank colours
   - Platform colours
+- Added persistent storage (save config to file)
 
 ### 1.1.4
 - Removed default `P` keybind (was bound to toggle the lobby table)

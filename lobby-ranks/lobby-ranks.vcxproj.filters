@@ -136,6 +136,9 @@
     <ClInclude Include="util.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="lobby-ranks.rc">

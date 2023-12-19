@@ -130,6 +130,7 @@
     <ClInclude Include="IMGUI\imstb_truetype.h" />
     <ClInclude Include="lobby-ranks.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Table.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
