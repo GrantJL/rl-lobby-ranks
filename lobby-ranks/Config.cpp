@@ -1,11 +1,13 @@
 #include "Config.h"
 
+#include <fstream>
+
+#include <json/reader.h>
+
 #include "types.h"
 #include "util.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
-
-#include <json/reader.h>
 
 using namespace jlg;
 
@@ -22,13 +24,20 @@ Config* Config::instance()
 	return c;
 }
 
-void Config::initialize( const std::shared_ptr<CVarManagerWrapper>& cvm )
+void Config::initialize( const std::shared_ptr<CVarManagerWrapper>& cvm, const std::filesystem::path& cf )
 {
 	if( c == nullptr )
-		c = new Config( cvm );
+		c = new Config( cvm, cf );
 }
 
 namespace {
+std::unique_ptr<Json::StreamWriter> writer = [](){
+	Json::StreamWriterBuilder swb;
+	swb["commentStyle"] = "None";
+	swb["dropNullPlaceholders"] = true;
+	return std::unique_ptr<Json::StreamWriter>( swb.newStreamWriter() );
+}();
+
 auto genDefaults = []( const std::shared_ptr<CVarManagerWrapper>& cvm ){
 	using Value = Config::Value;
 	std::map<std::string, Value> map;
@@ -72,6 +81,7 @@ auto genDefaults = []( const std::shared_ptr<CVarManagerWrapper>& cvm ){
 
 #pragma region Gui
 
+static bool configChanged = false;
 bool gui::reset( const char* name )
 {
 	auto label = (strlen(name) ? std::string("Reset ").append(name) : "Reset" );
@@ -83,11 +93,15 @@ bool gui::reset( const char* name )
 
 bool gui::drawBool( const char* name, bool& v )
 {
-	return ImGui::Checkbox( name, &v );
+	bool c = ImGui::Checkbox( name, &v );
+	configChanged |= c;
+	return c;
 }
 bool gui::drawFloat( const char* name, float& v, float min, float max )
 {
-	return ImGui::SliderFloat( name, &v, min, max );
+	bool c = ImGui::SliderFloat( name, &v, min, max );
+	configChanged |= c;
+	return c;
 }
 bool gui::drawColour( const char* name, LinearColor& v, LinearColor defaultV )
 {
@@ -109,6 +123,7 @@ bool gui::drawColour( const char* name, LinearColor& v, LinearColor defaultV )
 	if( changed ) v = LinearColor(c.x*255.f, c.y*255.f, c.z*255.f, c.w*255.f);
 	if( reset ) v = defaultV;
 
+	configChanged |= changed || reset;
 	return changed || reset;
 }
 
@@ -252,20 +267,24 @@ std::list<Playlist> Config::getPlaylists()
 // ----------------------------------------------------------
 //                       CONSTRUCTORS
 // ----------------------------------------------------------
-Config::Config( const std::shared_ptr<CVarManagerWrapper>& cvm )
+Config::Config( const std::shared_ptr<CVarManagerWrapper>& cvm, const std::filesystem::path& configFile )
 	: configMap( genDefaults(cvm) )
+	, configFile( configFile )
 	, showExampleTable( false )
 	, refreshExampleTable( true )
 {}
 
 Config::~Config()
-{}
+{
+	save();
+}
 
 // ----------------------------------------------------------
 //                     INSTANCE METHODS
 // ----------------------------------------------------------
 void Config::drawImGuiOptions()
 {
+	configChanged = false;
 	bool enabled = isEnabled();
 	if( gui::drawBool("Enabled", enabled) )
 		configMap.at("enabled").set( enabled );
@@ -302,6 +321,9 @@ void Config::drawImGuiOptions()
 	}
 
 	drawPlaylistSelection();
+
+	if( configChanged )
+		save();
 }
 
 void Config::drawTablePosOptions()
@@ -310,9 +332,15 @@ void Config::drawTablePosOptions()
 	auto anchorY = configMap.at( "table_anchor_y" ).get<int32_t>();
 
 	if( ImGui::Combo("Table Anchor X", &anchorX, "Left\0Middle\0Right\0\0") )
+	{
+		configChanged = true;
 		configMap.at( "table_anchor_x" ).set( anchorX );
+	}
 	if( ImGui::Combo("Table Anchor Y", &anchorY, "Top\0Middle\0Bottom\0\0") )
+	{
+		configChanged = true;
 		configMap.at( "table_anchor_y" ).set( anchorY );
+	}
 
 	auto [posX, posY] = getTablePosition();
 	if( gui::drawFloat("Table Position X", posX, 0.0, 1.0) )
@@ -394,6 +422,7 @@ void Config::drawPlaylistSelection()
 
 	if( ImGui::Button("Reset Playlists") )
 	{
+		configChanged = true;
 		configValue.set( configValue.getDefault<Value::IntArray>() );
 		ImGui::PopID();
 		return;
@@ -432,7 +461,8 @@ void Config::drawPlaylistSelection()
 		ImGuiButtonFlags dnbutton = (i==0 || !p.enabled ? ImGuiDir_None : ImGuiDir_Up );
 		ImGui::Bullet();
 		ImGui::SameLine();
-		ImGui::Checkbox( "##Checkbox", &p.enabled );
+		if( ImGui::Checkbox("##Checkbox", &p.enabled) )
+			configChanged = true;
 		if( p.enabled )
 		{
 			ImGui::SameLine();
@@ -447,12 +477,14 @@ void Config::drawPlaylistSelection()
 					p.index++;
 					playlistItems.at(i+1).index--;
 				}
+				configChanged = true;
 			}
 			ImGui::SameLine();
 			if( ImGui::ArrowButtonEx("##dn", dnbutton, sz, dnflags) )
 			{
 				p.index--;
 				playlistItems.at(i-1).index++;
+				configChanged = true;
 			}
 			ImGui::SameLine();
 			ImGui::Text( p.name.c_str() );
@@ -478,6 +510,44 @@ void Config::drawPlaylistSelection()
 		if( p.enabled )
 			newPlaylists.push_back(int32_t(p.playlist));
 	configValue.set( newPlaylists );
+}
+
+bool Config::load()
+{
+	return load( configFile );
+}
+void Config::save()
+{
+	save( configFile );
+}
+
+bool Config::load( const std::filesystem::path& file )
+{
+	using namespace std::filesystem;
+	if( !exists(file) || !is_regular_file(file) )
+		return false;
+
+	Json::Value json;
+	std::ifstream ifile( file );
+	if( !reader.parse(ifile, json, false) )
+		return false;
+
+	for( const auto& name : json.getMemberNames() )
+		if( configMap.find(name) != configMap.end() )
+			configMap.at(name).load( json[name] );
+	return true;
+}
+
+void Config::save( const std::filesystem::path& file )
+{
+	Json::Value json;
+	for( const auto& entry : configMap )
+		json[entry.first] = entry.second.json();
+
+	std::filesystem::create_directories( file.parent_path() );
+
+	std::ofstream ifile( file );
+	writer->write( json, &ifile );
 }
 
 void Config::loadFromCfg()

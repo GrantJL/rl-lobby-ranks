@@ -11,6 +11,7 @@
 #include <array>
 #include <list>
 #include <numeric>
+#include <fstream>
 
 #define LR_CMD_PREFIX "jlg_lobby_rank_"
 #define LR_CVAR_PREFIX LR_CMD_PREFIX "v_"
@@ -90,7 +91,10 @@ const char* LobbyRanks::Command::debug =      "jlg_debug";
 
 void LobbyRanks::onLoad()
 {
-	Config::initialize( cvarManager );
+	Config::initialize(
+		cvarManager,
+		gameWrapper->GetBakkesModPath() / "jlg_lobby_ranks" / "config.json"
+	);
 	config = Config::instance();
 
 	// Regular Variables
@@ -182,6 +186,7 @@ void LobbyRanks::refresh()
 void LobbyRanks::sync()
 {
 	config->loadFromCfg();
+	config->load();
 
 	// JLG TODO Sync other cvars
 }
@@ -278,8 +283,6 @@ void LobbyRanks::resizeTable( CanvasWrapper c, Table& t )
 
 void LobbyRanks::onUnload()
 {
-	cvarManager->backupCfg( "back_jlg_cfg");
-
 	Config* c = Config::instance();
 	delete c;
 	c = nullptr;
