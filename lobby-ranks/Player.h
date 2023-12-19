@@ -29,6 +29,7 @@ namespace jlg {
 			std::string name;
 			std::string uuid;
 			Team team;
+			Platform platform;
 			bool isBot;
 			bool isCurrentPlayer;
 
@@ -39,6 +40,7 @@ namespace jlg {
 		//----------------------------------------------------------
 		public:
 			Player() = delete;
+			Player( std::string name, Team team, Platform platform, bool isBot, bool isCurrentPlayer, Rank a, Rank b );
 			Player( const std::shared_ptr<GameWrapper>& gw, PriWrapper pw );
 			virtual ~Player();
 

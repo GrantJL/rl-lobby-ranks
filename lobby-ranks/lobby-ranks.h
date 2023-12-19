@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "Player.h"
+#include "Config.h"
 
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
@@ -29,20 +30,12 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		};
 
 		struct Var {
-			static const char* enabled;
-			static const char* showWithScoreboard;
-
-			static const char* playlists;
-
 			static const char* backgroundOpacity;
-			static const char* xPosition;
-			static const char* yPosition;
-			static const char* xAnchor;
-			static const char* yAnchor;
-			static const char* scale;
-
 		};
+
 		struct Command {
+			static const char* enable;
+
 			static const char* toggleShow;
 			static const char* refresh;
 
@@ -70,15 +63,15 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 			jlg::Playlist::Tournament };
 
 	//------------------- BakkesModPlugin ----------------------
-	public:
-		virtual void onLoad();
-		virtual void onUnload();
+	private:
+		virtual void onLoad() override;
+		virtual void onUnload() override;
 
 	//----------------- PluginSettingsWindow -------------------
 	public:
-		virtual void RenderSettings();
-		virtual std::string GetPluginName();
-		virtual void SetImGuiContext( uintptr_t ctx );
+		virtual void RenderSettings() override;
+		virtual std::string GetPluginName() override;
+		virtual void SetImGuiContext( uintptr_t ctx ) override;
 
 	//------------------- INSTANCE METHODS ---------------------
 	private:
@@ -89,24 +82,22 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		void updatePlayers();
 
 		Table getTable();
-		void resizeTable( CanvasWrapper c );
+		void resizeTable( CanvasWrapper c, Table& table );
 
 		bool isInGame();
 		ServerWrapper getActiveGameServer();
 
-		bool isEnabled();
-		bool setEnabled( bool enabled );
 		bool isVisible();
 		bool setVisible( bool visible );
 		bool isScoreboardOpen();
 		bool setScoreboardOpen( bool open );
-		bool isShownWithSb();
-		bool setShowWithSb( bool showWithSb );
 
 		void render( CanvasWrapper canvas );
-		void drawTable( CanvasWrapper& canvas );
+		void drawTable( CanvasWrapper& canvas, Table& table );
 
 		void debugPrint();
+
+		Table buildExampleTable();
 
 	//------------------ INSTANCE VARIABLES --------------------
 	private:
@@ -114,15 +105,12 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		bool recalculate = false;
 
 		Table table;
+		Table exampleTable;
 		std::list<Player> players;
+		Config* config;
 
-		std::shared_ptr<bool> enabled = std::make_shared<bool>( true );
 		std::shared_ptr<bool> visible = std::make_shared<bool>( false );
-		std::shared_ptr<bool> showWithSb  = std::make_shared<bool>( false );
 		std::shared_ptr<bool> sbOpen  = std::make_shared<bool>( false );
-
-		std::shared_ptr<Vector2F> tablePosition = std::make_shared<Vector2F>( Vector2F{0.0f, 0.0f} );
-		std::shared_ptr<Vector2F> anchorOffset = std::make_shared<Vector2F>( Vector2F{0.0f, 0.0f} );
 };
 
 }; // END namespace jlg
