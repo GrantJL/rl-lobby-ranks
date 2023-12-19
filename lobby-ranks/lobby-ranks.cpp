@@ -80,19 +80,10 @@ const char* LobbyRanks::GameEvent::OnAllTeamsCreated = "Function TAGame.GameEven
 const char* LobbyRanks::GameEvent::ReplayEnd =         "Function ReplayDirector_TA.Playing.EndState";
 const char* LobbyRanks::GameEvent::ReplayBegin =       "Function ReplayDirector_TA.Playing.BeginState";
 
-const char* LobbyRanks::Var::enabled =            LR_CVAR_PREFIX "enabled";
-//const char* LobbyRanks::Var::shown =              LR_CVAR_PREFIX "show";
-//const char* LobbyRanks::Var::scoreboardOpen =     LR_CVAR_PREFIX "scoreboard_open";
-const char* LobbyRanks::Var::showWithScoreboard = LR_CVAR_PREFIX "show_w_scoreboard";
-const char* LobbyRanks::Var::playlists =          LR_CVAR_PREFIX "playlists";
 const char* LobbyRanks::Var::backgroundOpacity =  LR_CVAR_PREFIX "background_opacity";
-const char* LobbyRanks::Var::xPosition =          LR_CVAR_PREFIX "x_position";
-const char* LobbyRanks::Var::yPosition =          LR_CVAR_PREFIX "y_position";
-const char* LobbyRanks::Var::xAnchor =            LR_CVAR_PREFIX "x_anchor";
-const char* LobbyRanks::Var::yAnchor =            LR_CVAR_PREFIX "y_anchor";
-const char* LobbyRanks::Var::scale =              LR_CVAR_PREFIX "scale";
 
 
+const char* LobbyRanks::Command::enable =     LR_CMD_PREFIX "enable";
 const char* LobbyRanks::Command::refresh =    LR_CMD_PREFIX "refresh";
 const char* LobbyRanks::Command::toggleShow = LR_CMD_PREFIX "toggle";
 const char* LobbyRanks::Command::debug =      "jlg_debug";
@@ -103,42 +94,9 @@ void LobbyRanks::onLoad()
 	config = Config::instance();
 
 	// Regular Variables
-	auto cvar_enab = cvarManager->registerCvar( Var::enabled,            "1",   "Enable Lobby Ranks",             true,  true, 0, true, 1,    true );
-	auto cvar_show = cvarManager->registerCvar( Var::showWithScoreboard, "1",   "Show Lobby Ranks W/ Scoreboard", true,  true, 0, true, 1,    true );
 	auto cvar_back = cvarManager->registerCvar( Var::backgroundOpacity,  "200", "Lobby Ranks Background opacity", false, true, 0, true, 255,  true );
-	auto cvar_xPos = cvarManager->registerCvar( Var::xPosition,          "0.7", "Lobby Ranks Table Position X",   false, true, 0, true, 1.0f, true );
-	auto cvar_yPos = cvarManager->registerCvar( Var::yPosition,          "0.5", "Lobby Ranks Table Position Y",   false, true, 0, true, 1.0f, true );
-	auto cvar_xAnc = cvarManager->registerCvar( Var::xAnchor,            "0",   "Lobby Ranks Table Anchor X",     false, true, 0, true, 2,    true );
-	auto cvar_yAnc = cvarManager->registerCvar( Var::yAnchor,            "1",   "Lobby Ranks Table Anchor Y",     false, true, 0, true, 2,    true );
-	auto cvar_scal = cvarManager->registerCvar( Var::scale,              "1",   "Lobby Ranks Overlay scale",      false, true, 0.5, true, 3,  true );
-	// auto cvar_play = cvarManager->registerCvar( Var::playlists, "10 11 13 34",  "Lobby Ranks shown playlists",    false );
 
 	exampleTable = buildExampleTable();
-
-	cvar_enab.addOnValueChanged(
-		[this]( std::string old, CVarWrapper cv ) {
-			setEnabled( old == "0" );
-		});
-	cvar_show.addOnValueChanged(
-		[this]( std::string old, CVarWrapper cv ) {
-			setShowWithSb( old == "0" );
-		});
-	cvar_xPos.addOnValueChanged(
-		[this]( std::string old, CVarWrapper cv ) {
-			tablePosition->X = cv.getFloatValue();
-		});
-	cvar_yPos.addOnValueChanged(
-		[this]( std::string old, CVarWrapper cv ) {
-			tablePosition->Y = cv.getFloatValue();
-		});
-	cvar_xAnc.addOnValueChanged(
-		[this]( std::string old, CVarWrapper cv ) {
-			anchorOffset->X = cv.getFloatValue() / 2.0f;
-		});
-	cvar_yAnc.addOnValueChanged(
-		[this]( std::string old, CVarWrapper cv ) {
-			anchorOffset->Y = cv.getFloatValue() / 2.0f;
-		});
 
 	// Commands
 	cvarManager->registerCvar( Command::toggleShow, "0",     "Toggle show Lobby Ranks table",  true, false, .0f, false, .0f, false );
@@ -152,6 +110,31 @@ void LobbyRanks::onLoad()
 	bindEvent( GameEvent::PlayerLeft,        [&]() { refresh(); } );
 	bindEvent( GameEvent::OnAllTeamsCreated, [&]() { refresh(); } );
 
+	cvarManager->registerNotifier(
+		Command::enable,
+		[this]( std::vector<std::string> cmd) {
+			try
+			{
+				int enabled = config->isEnabled();
+			
+				if( cmd.size() <= 1 )
+					enabled = !enabled;
+				else
+				{
+					std::stringstream ss( cmd[1] );
+					ss >> enabled;
+				}
+
+				config->setEnabled( enabled );
+				cvarManager->log( (enabled ? "jlg_lobby_rank enabled" : "jlg_lobby_rank disabled") );
+			}
+			catch( ... )
+			{
+				cvarManager->log( "jlg_lobby_rank_enabled error: use `jlg_lobby_rank_enabled` to toggle, `jlg_lobby_rank_enabled 0` to disable, `jlg_lobby_rank_enabled 1` to enable" );
+			}
+		},
+		"Enable Lobby Ranks Plugin",
+			PERMISSION_ALL );
 	cvarManager->registerNotifier(
 		Command::toggleShow,
 		[this]( std::vector<std::string> ) {
@@ -198,29 +181,6 @@ void LobbyRanks::refresh()
 
 void LobbyRanks::sync()
 {
-	auto cvar_enabled = cvarManager->getCvar( Var::enabled );
-	if( cvar_enabled )
-		setEnabled( cvar_enabled.getBoolValue() );
-
-	auto cvar_showWithScoreboard = cvarManager->getCvar( Var::showWithScoreboard );
-	if( cvar_showWithScoreboard )
-		setShowWithSb( cvar_showWithScoreboard.getBoolValue() );
-
-	auto cvar_xPosition = cvarManager->getCvar(Var::xPosition);
-	auto cvar_yPosition = cvarManager->getCvar(Var::yPosition);
-	if( cvar_xPosition && cvar_yPosition )
-	{
-		tablePosition->X = cvar_xPosition.getFloatValue();
-		tablePosition->Y = cvar_yPosition.getFloatValue();
-	}
-	auto cvar_xAnchor = cvarManager->getCvar(Var::xAnchor);
-	auto cvar_yAnchor = cvarManager->getCvar(Var::yAnchor);
-	if( cvar_xAnchor && cvar_yAnchor )
-	{
-		anchorOffset->X = cvar_xAnchor.getFloatValue() / 2.0f;
-		anchorOffset->Y = cvar_yAnchor.getFloatValue() / 2.0f;
-	}
-
 	config->loadFromCfg();
 
 	// JLG TODO Sync other cvars
@@ -327,10 +287,18 @@ void LobbyRanks::onUnload()
 
 void LobbyRanks::render( CanvasWrapper canvas )
 {
-	if( !isEnabled() ) return;
+	if( !config->isEnabled() ) return;
 
-	if( isVisible() || (isScoreboardOpen() && isShownWithSb()) )
-		drawTable( canvas );
+	if( isVisible() || (isScoreboardOpen() && config->isDisplayWithScoreboard()) )
+	{
+		if( recalculate )
+		{
+			resizeTable( canvas, table );
+			recalculate = false;
+		}
+
+		drawTable( canvas, table );
+	}
 
 	if( config->isExampleDisplayed() )
 	{
@@ -344,15 +312,6 @@ void LobbyRanks::render( CanvasWrapper canvas )
 	}
 }
 
-bool LobbyRanks::isEnabled()
-{
-	return *enabled;
-}
-bool LobbyRanks::setEnabled( bool enabled )
-{
-	this->enabled = std::make_shared<bool>( enabled );
-	return enabled;
-}
 bool LobbyRanks::isVisible()
 {
 	return *visible;
@@ -371,100 +330,13 @@ bool LobbyRanks::setScoreboardOpen(bool open)
 	this->sbOpen = std::make_shared<bool>( open );
 	return open;
 }
-bool LobbyRanks::isShownWithSb()
-{
-	return *showWithSb;
-}
-bool LobbyRanks::setShowWithSb( bool showWithSb )
-{
-	this->showWithSb = std::make_shared<bool>( showWithSb );
-	return showWithSb;
-}
-
-void LobbyRanks::drawTable( CanvasWrapper& canvas )
-{
-	if( recalculate )
-	{
-		resizeTable( canvas, table );
-		recalculate = false;
-	}
-
-	if( table.empty() ) return;
-
-	drawTable( canvas, table );
-	return;
-
-	auto mw = gameWrapper->GetMMRWrapper();
-	jlg::Playlist p = jlg::Playlist( mw.GetCurrentPlaylist() );
-	/*size_t playListIndex = 0;
-	auto piter = Playlists.begin();
-	while( piter != Playlists.end() && *piter != p )
-	{ playListIndex++; piter++; }*/
-
-	float scale = 1.0;// cvarManager->getCvar( Var::scale ).getFloatValue();
-	float xpos = cvarManager->getCvar(Var::xPosition).getFloatValue();
-	float ypos = cvarManager->getCvar(Var::yPosition).getFloatValue();
-	float opacity = (cvarManager->getCvar(Var::backgroundOpacity).getIntValue() / 255.0f);
-
-	Vector2F Origin = {
-		0.0f,
-		0.0f
-	};
-	Vector2F CanvasSize = {
-		canvas.GetSize().X,
-		canvas.GetSize().Y
-	};
-
-	auto xp = cvarManager->getCvar( Var::xPosition );
-	auto yp = cvarManager->getCvar( Var::yPosition );
-	Vector2F TableOrigin = CanvasSize * (*tablePosition);
-	TableOrigin -= table.size() * (*anchorOffset);
-
-	bool tickTock = true;
-	auto drawCell = [&]( const Table::Cell& cell, size_t r, size_t c ) {
-		auto cellOrigin = TableOrigin + table.getCellOrigin( r, c );
-		auto color = cell.color;
-		/*if( c != 0 && c != playListIndex + 1 )
-			color.A *= 0.8;*/
-
-		auto bg = cell.backgroundColor;
-		bg.A = 200;
-		// don checker borad columns
-		/*auto bgo = bg.A;
-		if( c % 2 == 0 ){
-			bg *= 0.8; bg.A = bgo;
-		}*/
-		canvas.SetColor( bg );
-		canvas.SetPosition( cellOrigin );
-		canvas.FillBox( cell.paddedSize() );
-
-		canvas.SetColor( color );
-		canvas.SetPosition( cellOrigin + Vector2F{ cell.padLeft, cell.padTop } + cell.valueOffset );
-		canvas.DrawString( cell.value, scale, scale );
-		tickTock = !tickTock;
-
-		// Draw lines
-		if( c != 0 )
-		{
-			canvas.SetColor( 255, 255, 255, 25 );
-			canvas.DrawLine( cellOrigin, cellOrigin + Vector2F{ 0.0f, cell.paddedSize().Y }, 1.0f );
-		}
-		/*if( (r-1) % 3 == 0 )
-		{
-			canvas.SetColor( 255, 255, 255, 25 );
-			canvas.DrawLine( cellOrigin, cellOrigin + Vector2F{ cell.paddedSize().X, 0.0f }, 1.0f );
-		}*/
-	};
-	table.forEach( drawCell );
-}
 
 void LobbyRanks::drawTable( CanvasWrapper& canvas, Table& table )
 {
 	if( table.empty() ) return;
 
 	float scale = 1.0;// cvarManager->getCvar( Var::scale ).getFloatValue();
-	float xpos = cvarManager->getCvar(Var::xPosition).getFloatValue();
-	float ypos = cvarManager->getCvar(Var::yPosition).getFloatValue();
+	auto [xpos, ypos] = config->getTablePosition();
 	float opacity = (cvarManager->getCvar(Var::backgroundOpacity).getIntValue() / 255.0f);
 
 	Vector2F Origin = {
@@ -475,11 +347,8 @@ void LobbyRanks::drawTable( CanvasWrapper& canvas, Table& table )
 		canvas.GetSize().X,
 		canvas.GetSize().Y
 	};
-
-	auto xp = cvarManager->getCvar( Var::xPosition );
-	auto yp = cvarManager->getCvar( Var::yPosition );
-	Vector2F TableOrigin = CanvasSize * (*tablePosition);
-	TableOrigin -= table.size() * (*anchorOffset);
+	Vector2F TableOrigin = CanvasSize * config->getTablePosition();
+	TableOrigin -= table.size() * config->getTableAnchor();
 
 	bool tickTock = true;
 	auto drawCell = [&]( const Table::Cell& cell, size_t r, size_t c ) {
@@ -514,15 +383,5 @@ void LobbyRanks::drawTable( CanvasWrapper& canvas, Table& table )
 
 void LobbyRanks::debugPrint()
 {
-	static const auto vars = {
-		Var::enabled, Var::showWithScoreboard,
-		Var::backgroundOpacity, Var::scale,
-		Var::xPosition, Var::yPosition,
-		Var::xAnchor, Var::yAnchor };
-
-	std::stringstream ss;
-	ss << std::endl;
-	for( const auto& v : vars )
-		ss << '\t' << v << ": " << cvarManager->getCvar(v).getStringValue() << std::endl;
-	cvarManager->log( ss.str() );
+	cvarManager->log( config->debug() );
 }

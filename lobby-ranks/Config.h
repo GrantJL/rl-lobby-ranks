@@ -27,7 +27,7 @@ class Config
 			using IntArray = std::vector<int32_t>;
 
 			template<class T>
-			Value( const std::shared_ptr<CVarManagerWrapper>& cvm, const std::string& name, const std::string& desc, T dflt )
+			Value( const std::shared_ptr<CVarManagerWrapper>& cvm, const std::string& name, const std::string& desc, T dflt, bool searchable = false )
 				: cvm( cvm )
 				, cname( std::string("jlg_lobby_rank_v_").append(name) )
 				, name( name )
@@ -35,7 +35,7 @@ class Config
 				, dflt( to(dflt) )
 				, val( to(dflt) )
 			{
-				cvm->registerCvar( cname, w.write(to(dflt)), "", false );
+				cvm->registerCvar( cname, w.write(to(dflt)), "", searchable );
 			};
 
 			const std::string cname;
@@ -51,6 +51,7 @@ class Config
 			public:
 				void loadFromCfg();
 				void saveToCfg();
+				std::string asString();
 
 				template<class T>
 				T get();
@@ -67,8 +68,6 @@ class Config
 				template<> float       getDefault<float>();
 				template<> LinearColor getDefault<LinearColor>();
 				template<> IntArray    getDefault<IntArray>();
-
-				
 
 				template<class T>
 				Json::Value to( T v )
@@ -97,21 +96,25 @@ class Config
 
 	//--------------------INSTANCE METHODS----------------------
 	public:
+		void loadFromCfg();
+		std::string debug();
+
+		//------------------- Config Options -------------------
+		bool isEnabled();
+		void setEnabled( bool enabled );
+		bool isVisible();
+		bool isScoreboardOpen();
+		bool isDisplayWithScoreboard();
+
 		bool isExampleDisplayed() { return showExampleTable; };
 		bool isRefreshExampleTable() { return refreshExampleTable; };
 		void isRefreshExampleTable( bool newValue ) { refreshExampleTable= newValue; };
 
 		bool isPlatformDisplayed();
 
-		void drawImGuiOptions();
-
-		void drawTeamOptions();
-		void drawPlatformOptions();
-		void drawRankOptions();
-		void drawTableOptions();
-		void drawColorOptions( const std::string& name );
-
-		void drawPlaylistSelection();
+		float getScale();
+		Vector2F getTablePosition();
+		Vector2F getTableAnchor();
 
 		LinearColor getColour(const SkillRank&);
 		LinearColor getColour(Platform);
@@ -121,9 +124,19 @@ class Config
 		LinearColor tableOdd();
 		LinearColor tableEven();
 
-		void loadFromCfg();
-
 		std::list<Playlist> getPlaylists();
+
+		//------------------------ Draw -------------------------
+		void drawImGuiOptions();
+
+		void drawTablePosOptions();
+		void drawTeamOptions();
+		void drawPlatformOptions();
+		void drawRankOptions();
+		void drawTableOptions();
+		void drawColorOptions( const std::string& name );
+
+		void drawPlaylistSelection();
 
 	//-------------------INSTANCE VARIABLES---------------------
 	private:

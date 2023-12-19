@@ -12,6 +12,12 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{12ce060e-d746-4732-9530-be068fe9cd66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{756c373e-ca0d-4755-925e-76ad01722756}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\config">
+      <UniqueIdentifier>{9ed75e63-956d-4409-8cd1-60cc2cf98922}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lobby-ranks.cpp">
@@ -21,9 +27,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Table.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IMGUI\imgui.cpp">
@@ -63,7 +66,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigValue.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>Source Files\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,9 +80,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="version.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="util.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="types.h">
@@ -125,7 +131,10 @@
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Config.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Source Files\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

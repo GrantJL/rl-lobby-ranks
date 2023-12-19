@@ -5,6 +5,42 @@
 
 using namespace jlg;
 
+std::vector<std::string> str::split( const std::string& str, char sep, bool omitEmpty )
+{
+	std::vector<std::string> values;
+	size_t i = str.find( sep );
+
+	addSubStr( values, str, 0, i, omitEmpty );
+	if( i == str.npos )
+		return values;
+
+	size_t j;
+	do
+	{
+		j = str.find( sep, i+1 );
+		addSubStr( values, str, i+1, j, omitEmpty );
+		i = j;
+	} while( j != str.npos );
+
+	return values;
+}
+
+void str::addSubStr( std::vector<std::string>& list, const std::string& str, size_t first, size_t end, bool omitEmpty )
+{
+	if( first == str.npos )
+		return;
+
+	std::string substr;
+
+	if( end == str.npos )
+		substr = str.substr( first );
+	else
+		substr = str.substr( first, end - first );
+
+	if( !(omitEmpty && substr.empty()) )
+		list.push_back( substr );
+}
+
 template<>
 LinearColor util::toColor<Team>( const Team& v )
 {

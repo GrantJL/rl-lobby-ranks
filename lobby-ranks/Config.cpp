@@ -9,44 +9,6 @@
 
 using namespace jlg;
 
-namespace str{
-	void addSubStr( std::vector<std::string>& list, const std::string& str, size_t first, size_t end, bool omitEmpty )
-	{
-		if( first == str.npos )
-			return;
-
-		std::string substr;
-
-		if( end == str.npos )
-			substr = str.substr( first );
-		else
-			substr = str.substr( first, end - first );
-
-		if( !(omitEmpty && substr.empty()) )
-			list.push_back( substr );
-	}
-
-	std::vector<std::string> split( const std::string& str, char sep, bool omitEmpty = true )
-	{
-		std::vector<std::string> values;
-		size_t i = str.find( sep );
-
-		addSubStr( values, str, 0, i, omitEmpty );
-		if( i == str.npos )
-			return values;
-
-		size_t j;
-		do
-		{
-			j = str.find( sep, i+1 );
-			addSubStr( values, str, i+1, j, omitEmpty );
-			i = j;
-		} while( j != str.npos );
-
-		return values;
-	}
-}
-
 Json::Reader reader;
 Json::FastWriter Config::w = [](){
 	Json::FastWriter w;
@@ -70,139 +32,43 @@ namespace {
 auto genDefaults = []( const std::shared_ptr<CVarManagerWrapper>& cvm ){
 	using Value = Config::Value;
 	std::map<std::string, Value> map;
-	for( auto& v : { Value( cvm, "playlists",                  "", std::vector<int32_t>{10,11,13,34} ),
-	                 Value( cvm, "display_platform",           "", true ),
-	                 Value( cvm, "color_table_hdr_foreground", "", LinearColor{255, 255, 255, 255} ),
-	                 Value( cvm, "color_table_hdr_background", "", LinearColor{  0,   0,   0, 255} ),
-	                 Value( cvm, "color_table_row_even",       "", LinearColor( 40,  40,  40, 255) ),
-	                 Value( cvm, "color_table_row_odd",        "", LinearColor( 20,  20,  20, 255) ),
-	                 Value( cvm, "color_team_blue",            "", Color::Team::Blue ),
-	                 Value( cvm, "color_team_orange",          "", Color::Team::Orange ),
-	                 Value( cvm, "color_team_none",            "", Color::Team::White ),
-	                 Value( cvm, "color_platform_steam",       "", Color::Platform::Steam ),
-	                 Value( cvm, "color_platform_playstation", "", Color::Platform::Playstation ),
-	                 Value( cvm, "color_platform_xbox",        "", Color::Platform::Xbox ),
-	                 Value( cvm, "color_platform_nintendo",    "", Color::Platform::Nintendo ),
-	                 Value( cvm, "color_platform_epic",        "", Color::Platform::Epic ),
-	                 Value( cvm, "color_rank_unranked",        "", Color::Rank::Unranked ),
-	                 Value( cvm, "color_rank_bronze",          "", Color::Rank::Bronze ),
-	                 Value( cvm, "color_rank_silver",          "", Color::Rank::Silver ),
-	                 Value( cvm, "color_rank_gold",            "", Color::Rank::Gold ),
-	                 Value( cvm, "color_rank_platinum",        "", Color::Rank::Platinum ),
-	                 Value( cvm, "color_rank_diamond",         "", Color::Rank::Diamond ),
-	                 Value( cvm, "color_rank_champ",           "", Color::Rank::Champ ),
-	                 Value( cvm, "color_rank_grandchamp",      "", Color::Rank::GrandChamp ),
-	                 Value( cvm, "color_rank_ssl",             "", Color::Rank::SupersonicLegend ) })
-		map.insert( {v.name, v} );
+	for( auto& v : { 
+			Value( cvm, "enabled",                    "", true, true ),
+			Value( cvm, "scoreboard_display_with",    "", true, true ),
+			Value( cvm, "playlists",                  "", std::vector<int32_t>{10,11,13,34} ),
+			Value( cvm, "display_platform",           "", true ),
+			Value( cvm, "scale",                      "", 1.0 ),
+			Value( cvm, "table_position_x",           "", 0.7 ),
+			Value( cvm, "table_position_y",           "", 0.5 ),
+			Value( cvm, "table_anchor_x",             "", 0 ),
+			Value( cvm, "table_anchor_y",             "", 1 ),
+			Value( cvm, "color_table_hdr_foreground", "", LinearColor{255, 255, 255, 255} ),
+			Value( cvm, "color_table_hdr_background", "", LinearColor{  0,   0,   0, 255} ),
+			Value( cvm, "color_table_row_even",       "", LinearColor( 40,  40,  40, 255) ),
+			Value( cvm, "color_table_row_odd",        "", LinearColor( 20,  20,  20, 255) ),
+			Value( cvm, "color_team_blue",            "", Color::Team::Blue ),
+			Value( cvm, "color_team_orange",          "", Color::Team::Orange ),
+			Value( cvm, "color_team_none",            "", Color::Team::White ),
+			Value( cvm, "color_platform_steam",       "", Color::Platform::Steam ),
+			Value( cvm, "color_platform_playstation", "", Color::Platform::Playstation ),
+			Value( cvm, "color_platform_xbox",        "", Color::Platform::Xbox ),
+			Value( cvm, "color_platform_nintendo",    "", Color::Platform::Nintendo ),
+			Value( cvm, "color_platform_epic",        "", Color::Platform::Epic ),
+			Value( cvm, "color_rank_unranked",        "", Color::Rank::Unranked ),
+			Value( cvm, "color_rank_bronze",          "", Color::Rank::Bronze ),
+			Value( cvm, "color_rank_silver",          "", Color::Rank::Silver ),
+			Value( cvm, "color_rank_gold",            "", Color::Rank::Gold ),
+			Value( cvm, "color_rank_platinum",        "", Color::Rank::Platinum ),
+			Value( cvm, "color_rank_diamond",         "", Color::Rank::Diamond ),
+			Value( cvm, "color_rank_champ",           "", Color::Rank::Champ ),
+			Value( cvm, "color_rank_grandchamp",      "", Color::Rank::GrandChamp ),
+			Value( cvm, "color_rank_ssl",             "", Color::Rank::SupersonicLegend )
+		 }) map.insert( {v.name, v} );
+
 
 	return map;
 };
 }
-
-#pragma region Config Specializations
-
-template<>
-bool        Config::Value::get<bool>()
-{
-	return val.asBool();
-}
-template<>
-int32_t     Config::Value::get<int32_t>()
-{
-	return val.asInt();
-}
-template<>
-float       Config::Value::get<float>()
-{
-	return val.asFloat();
-}
-template<>
-LinearColor Config::Value::get<LinearColor>()
-{
-	return LinearColor(
-		val[0].asFloat(),
-		val[1].asFloat(),
-		val[2].asFloat(),
-		val[3].asFloat()
-	);
-}
-template<>
-Config::Value::IntArray    Config::Value::get<Config::Value::IntArray>()
-{
-	IntArray a;
-	for( Json::Value::ArrayIndex i = 0; i < val.size(); i++ )
-		a.push_back( val[i].asInt() );
-	return a;
-}
-
-template<>
-bool        Config::Value::getDefault<bool>()
-{
-	return dflt.asBool();
-}
-template<>
-int32_t     Config::Value::getDefault<int32_t>()
-{
-	return dflt.asInt();
-}
-template<>
-float       Config::Value::getDefault<float>()
-{
-	return dflt.asFloat();
-}
-template<>
-LinearColor Config::Value::getDefault<LinearColor>()
-{
-	return LinearColor(
-		dflt[0].asFloat(),
-		dflt[1].asFloat(),
-		dflt[2].asFloat(),
-		dflt[3].asFloat()
-	);
-}
-template<>
-Config::Value::IntArray    Config::Value::getDefault<Config::Value::IntArray>()
-{
-	IntArray a;
-	for( Json::Value::ArrayIndex i = 0; i < dflt.size(); i++ )
-		a.push_back( dflt[i].asInt() );
-	return a;
-}
-
-template<>
-Json::Value Config::Value::to<LinearColor>( LinearColor v )
-{
-	Json::Value a( Json::arrayValue );
-	a.append( v.R );
-	a.append( v.G );
-	a.append( v.B );
-	a.append( v.A );
-	return a;
-}
-template<>
-Json::Value Config::Value::to<Config::Value::IntArray>( Config::Value::IntArray v )
-{
-	Json::Value a( Json::arrayValue );
-	for( const auto& i : v )
-		a.append( i );
-	return a;
-}
-
-void Config::Value::loadFromCfg()
-{
-	if( !cvm ) return;
-	if( auto cvar = cvm->getCvar(cname) )
-		reader.parse( cvar.getStringValue(), val, false );
-}
-
-void Config::Value::saveToCfg()
-{
-	if( !cvm ) return;
-	if( auto cvar = cvm->getCvar(cname) )
-		cvar.setValue(w.write(val));
-}
-
-#pragma endregion
 
 #pragma region Gui
 
@@ -221,7 +87,7 @@ bool gui::drawBool( const char* name, bool& v )
 }
 bool gui::drawFloat( const char* name, float& v, float min, float max )
 {
-	return ImGui::DragFloat( name, &v, .1f, min, max );
+	return ImGui::SliderFloat( name, &v, min, max );
 }
 bool gui::drawColour( const char* name, LinearColor& v, LinearColor defaultV )
 {
@@ -250,9 +116,48 @@ bool gui::drawColour( const char* name, LinearColor& v, LinearColor defaultV )
 
 #pragma region Get Config
 
+bool Config::isEnabled()
+{
+	return configMap.at("enabled").get<bool>();
+}
+void Config::setEnabled( bool enabled )
+{
+	configMap.at("enabled").set( enabled );
+}
+bool Config::isVisible()
+{
+	return configMap.at("visible").get<bool>();
+}
+bool Config::isScoreboardOpen()
+{
+	return configMap.at("scoreboard_open").get<bool>();
+}
+bool Config::isDisplayWithScoreboard()
+{
+	return configMap.at("scoreboard_display_with").get<bool>();
+}
 bool Config::isPlatformDisplayed()
 {
 	return configMap.at("display_platform").get<bool>();
+}
+
+float Config::getScale()
+{
+	return configMap.at("scale").get<float>();
+}
+Vector2F Config::getTablePosition()
+{
+	return {
+		configMap.at("table_position_x").get<float>(),
+		configMap.at("table_position_y").get<float>()
+	};
+}
+Vector2F Config::getTableAnchor()
+{
+	return {
+		(configMap.at("table_anchor_x").get<int32_t>() / 2.f),
+		(configMap.at("table_anchor_y").get<int32_t>() / 2.f)
+	};
 }
 
 LinearColor Config::getColour(const SkillRank& v)
@@ -344,8 +249,6 @@ std::list<Playlist> Config::getPlaylists()
 
 #pragma endregion
 
-
-
 // ----------------------------------------------------------
 //                       CONSTRUCTORS
 // ----------------------------------------------------------
@@ -363,8 +266,16 @@ Config::~Config()
 // ----------------------------------------------------------
 void Config::drawImGuiOptions()
 {
+	bool enabled = isEnabled();
+	if( gui::drawBool("Enabled", enabled) )
+		configMap.at("enabled").set( enabled );
+
+	bool dispWithScoreboard = isDisplayWithScoreboard();
+	if( gui::drawBool("Display with scoreboard", dispWithScoreboard) )
+		configMap.at("scoreboard_display_with").set( dispWithScoreboard );
+
 	bool displayPlatform = isPlatformDisplayed();
-	if( ImGui::Checkbox("Display user platform", &displayPlatform) )
+	if( gui::drawBool("Display user platform", displayPlatform) )
 		configMap.at("display_platform").set( displayPlatform );
 
 	if( ImGui::Button((showExampleTable?"Hide Example Table":"Show Example Table")) )
@@ -377,6 +288,9 @@ void Config::drawImGuiOptions()
 	//if( showExampleTable ) return; // avoid sychconous crash
 
 	auto colapseFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_NoAutoOpenOnLog;
+	if( ImGui::CollapsingHeader("Table Position", colapseFlags) )
+		drawTablePosOptions();
+
 	if( ImGui::CollapsingHeader("Colors", colapseFlags) )
 	{
 		ImGui::Indent();
@@ -390,6 +304,23 @@ void Config::drawImGuiOptions()
 	drawPlaylistSelection();
 }
 
+void Config::drawTablePosOptions()
+{
+	auto anchorX = configMap.at( "table_anchor_x" ).get<int32_t>();
+	auto anchorY = configMap.at( "table_anchor_y" ).get<int32_t>();
+
+	if( ImGui::Combo("Table Anchor X", &anchorX, "Left\0Middle\0Right\0\0") )
+		configMap.at( "table_anchor_x" ).set( anchorX );
+	if( ImGui::Combo("Table Anchor Y", &anchorY, "Top\0Middle\0Bottom\0\0") )
+		configMap.at( "table_anchor_y" ).set( anchorY );
+
+	auto [posX, posY] = getTablePosition();
+	if( gui::drawFloat("Table Position X", posX, 0.0, 1.0) )
+		configMap.at( "table_position_x" ).set( posX );
+	if( gui::drawFloat("Table Position Y", posY, 0.0, 1.0) )
+		configMap.at( "table_position_y" ).set( posY );
+
+}
 void Config::drawTeamOptions()
 {
 	ImGui::Indent();
@@ -553,4 +484,13 @@ void Config::loadFromCfg()
 {
 	for( auto& [k, v] : configMap )
 		v.loadFromCfg();
+}
+
+std::string Config::debug()
+{
+	std::stringstream ss;
+	ss << "Debug config:\n";
+	for( auto [name, value] : configMap )
+		ss << '\t' << name << ": " << value.asString() << "\n";
+	return ss.str();
 }

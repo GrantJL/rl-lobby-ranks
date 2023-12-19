@@ -30,21 +30,12 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		};
 
 		struct Var {
-			static const char* enabled;
-			static const char* showWithScoreboard;
-
-			static const char* playlists;
-
 			static const char* backgroundOpacity;
-			static const char* xPosition;
-			static const char* yPosition;
-			static const char* xAnchor;
-			static const char* yAnchor;
-			static const char* scale;
-			static const char* displayPlatform;
 		};
 
 		struct Command {
+			static const char* enable;
+
 			static const char* toggleShow;
 			static const char* refresh;
 
@@ -96,18 +87,12 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		bool isInGame();
 		ServerWrapper getActiveGameServer();
 
-		bool isEnabled();
-		bool setEnabled( bool enabled );
 		bool isVisible();
 		bool setVisible( bool visible );
 		bool isScoreboardOpen();
 		bool setScoreboardOpen( bool open );
-		bool isShownWithSb();
-		bool setShowWithSb( bool showWithSb );
 
 		void render( CanvasWrapper canvas );
-		void drawTable( CanvasWrapper& canvas );
-
 		void drawTable( CanvasWrapper& canvas, Table& table );
 
 		void debugPrint();
@@ -124,14 +109,8 @@ class LobbyRanks : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::
 		std::list<Player> players;
 		Config* config;
 
-		std::shared_ptr<bool> enabled = std::make_shared<bool>( true );
-		std::shared_ptr<bool> displayPlatform = std::make_shared<bool>( true );
 		std::shared_ptr<bool> visible = std::make_shared<bool>( false );
-		std::shared_ptr<bool> showWithSb  = std::make_shared<bool>( false );
 		std::shared_ptr<bool> sbOpen  = std::make_shared<bool>( false );
-
-		std::shared_ptr<Vector2F> tablePosition = std::make_shared<Vector2F>( Vector2F{0.0f, 0.0f} );
-		std::shared_ptr<Vector2F> anchorOffset = std::make_shared<Vector2F>( Vector2F{0.0f, 0.0f} );
 };
 
 }; // END namespace jlg
