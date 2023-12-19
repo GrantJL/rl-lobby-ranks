@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <list>
+#include <filesystem>
 
 #include <json/value.h>
 #include <json/writer.h>
@@ -49,8 +50,10 @@ class Config
 				Json::Value val;
 
 			public:
+				void load( const Json::Value& v );
 				void loadFromCfg();
 				void saveToCfg();
+				Json::Value json() const;
 				std::string asString();
 
 				template<class T>
@@ -86,16 +89,20 @@ class Config
 	//---------------------STATIC METHODS-----------------------
 	public:
 		static Config* instance();
-		static void initialize( const std::shared_ptr<CVarManagerWrapper>& );
+		static void initialize( const std::shared_ptr<CVarManagerWrapper>&, const std::filesystem::path& );
 
 	//----------------------CONSTRUCTORS------------------------
 	public:
 		Config() = delete;
-		Config( const std::shared_ptr<CVarManagerWrapper>& cvm );
+		Config( const std::shared_ptr<CVarManagerWrapper>& cvm, const std::filesystem::path& configFile );
 		virtual ~Config();
 
 	//--------------------INSTANCE METHODS----------------------
 	public:
+		bool load();
+		bool load( const std::filesystem::path& file );
+		void save();
+		void save( const std::filesystem::path& file );
 		void loadFromCfg();
 		std::string debug();
 
@@ -140,8 +147,8 @@ class Config
 
 	//-------------------INSTANCE VARIABLES---------------------
 	private:
+		std::filesystem::path configFile;
 		std::map<std::string, Value> configMap;
-		Json::Value json;
 		bool showExampleTable;
 		bool refreshExampleTable;
 };

@@ -94,6 +94,12 @@ Json::Value Config::Value::to<Config::Value::IntArray>( Config::Value::IntArray 
 	return a;
 }
 
+void Config::Value::load( const Json::Value& v )
+{
+	val = v;
+	saveToCfg();
+}
+
 void Config::Value::loadFromCfg()
 {
 	static Json::Reader reader;
@@ -106,7 +112,12 @@ void Config::Value::saveToCfg()
 {
 	if( !cvm ) return;
 	if( auto cvar = cvm->getCvar(cname) )
-		cvar.setValue( val.asString() );
+		cvar.setValue( asString() );
+}
+
+Json::Value Config::Value::json() const
+{
+	return val;
 }
 
 std::string Config::Value::asString()
