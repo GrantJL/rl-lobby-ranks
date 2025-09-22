@@ -44,7 +44,11 @@ auto genDefaults = []( const std::shared_ptr<CVarManagerWrapper>& cvm ){
 	for( auto& v : { 
 			Value( cvm, "enabled",                    "", true, true ),
 			Value( cvm, "scoreboard_display_with",    "", true, true ),
-			Value( cvm, "playlists",                  "", std::vector<int32_t>{10,11,13,34} ),
+			Value( cvm, "playlists",                  "", std::vector<int32_t>{
+				                                              static_cast<int32_t>(Playlist::Solo),
+				                                              static_cast<int32_t>(Playlist::Twos),
+				                                              static_cast<int32_t>(Playlist::Threes),
+				                                              static_cast<int32_t>(Playlist::Tournament) }),
 			Value( cvm, "display_platform",           "", true ),
 			Value( cvm, "scale",                      "", 1.0 ),
 			Value( cvm, "table_position_x",           "", 0.7 ),

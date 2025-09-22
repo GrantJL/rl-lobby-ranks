@@ -22,13 +22,14 @@ enum class Playlist
 	Solo = 10,
 	Twos = 11,
 	Threes = 13,
+	Fours = 61,
 	Hoops = 27,
 	Rumble = 28,
 	Dropshot = 29,
 	Snowday = 30,
 	Tournament = 34,
 };
-const static auto PlaylistValues = { Playlist::Unranked, Playlist::Solo, Playlist::Twos, Playlist::Threes, Playlist::Hoops, Playlist::Rumble, Playlist::Dropshot, Playlist::Snowday, Playlist::Tournament };
+const static auto PlaylistValues = { Playlist::Unranked, Playlist::Solo, Playlist::Twos, Playlist::Threes, Playlist::Fours, Playlist::Hoops, Playlist::Rumble, Playlist::Dropshot, Playlist::Snowday, Playlist::Tournament };
 
 enum class Rank
 {
@@ -144,6 +145,7 @@ namespace String
 		const static std::string Solo       { "1v1" };
 		const static std::string Twos       { "2v2" };
 		const static std::string Threes     { "3v3" };
+		const static std::string Fours      { "4v4" };
 		const static std::string Hoops      { "H" };
 		const static std::string Rumble     { "R" };
 		const static std::string Dropshot   { "D" };
