@@ -49,6 +49,9 @@ Additionally, you can bind the `jlg_lobby_rank_toggle` command in the BakkesMod 
 
 ## Change Log
 
+### 1.2.1
+- Adds Ranked 4v4 (Chaos) to playlist selection
+
 ### 1.2.0
 - Added Platform display to the table (optional)
 - Added ability to adjust which Rank Playlists are displayed in the table (and their order)

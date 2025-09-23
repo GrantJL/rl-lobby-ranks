@@ -173,6 +173,7 @@ std::string util::toString<Playlist>( const Playlist& playlist )
 		case Playlist::Solo:       return String::Playlist::Solo;
 		case Playlist::Twos:       return String::Playlist::Twos;
 		case Playlist::Threes:     return String::Playlist::Threes;
+		case Playlist::Fours:      return String::Playlist::Fours;
 		case Playlist::Hoops:      return String::Playlist::Hoops;
 		case Playlist::Rumble:     return String::Playlist::Rumble;
 		case Playlist::Dropshot:   return String::Playlist::Dropshot;
@@ -204,6 +205,7 @@ std::string util::toFullName( const Playlist& v )
 		case Playlist::Solo:       return "Solo";
 		case Playlist::Twos:       return "Twos";
 		case Playlist::Threes:     return "Threes";
+		case Playlist::Fours:      return "Fours (Chaos)";
 		case Playlist::Hoops:      return "Hoops";
 		case Playlist::Rumble:     return "Rumble";
 		case Playlist::Dropshot:   return "Dropshot";
