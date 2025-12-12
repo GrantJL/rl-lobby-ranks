@@ -339,3 +339,4 @@ MigrationBackup/
 *.exp
 plugins*
 !plugins/settings
+vcpkg_installed

@@ -30,17 +30,11 @@ Remove-Item -Path "$BundleTo" `
 New-Item -ItemType "Directory" -Path "$BundleTo" -Force | Out-Null
 
 $BundleToSrc="$BundleTo\source"
-robocopy "$Repo" "$BundleToSrc" *.sln README.md
+robocopy "$Repo" "$BundleToSrc" *.sln *.json README.md
 
 robocopy "$Repo\lobby-ranks" "$BundleToSrc\lobby-ranks" *.cc LICENSE *.h *.cpp *.inl *. *.cpp *.h *.props *.rc *.vcxproj *.vcxproj.filters *.ps1 *.aps README.md
 
-robocopy "$Repo\lobby-ranks\fmt" "$BundleToSrc\lobby-ranks\fmt" *.cc *.cpp *.h  *.inl LICENSE /s
-
 robocopy "$Repo\lobby-ranks\IMGUI" "$BundleToSrc\lobby-ranks\IMGUI" *.cc *.cpp *.h  *.inl LICENSE /s
-
-robocopy "$Repo\lobby-ranks\jsoncpp" "$BundleToSrc\lobby-ranks\jsoncpp" LICENSE
-robocopy "$Repo\lobby-ranks\jsoncpp\include" "$BundleToSrc\lobby-ranks\jsoncpp\include" *.h /s
-robocopy "$Repo\lobby-ranks\jsoncpp\src\lib_json" "$BundleToSrc\lobby-ranks\jsoncpp\src\lib_json" *.cc *.cpp *.h  *.inl LICENSE /s
 
 $BundleToPlugin="$BundleTo\plugins"
 robocopy "$Repo\plugins" "$BundleToPlugin" "lobby-ranks.dll"

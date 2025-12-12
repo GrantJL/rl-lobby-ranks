@@ -50,6 +50,9 @@ Additionally, you can bind the `jlg_lobby_rank_toggle` command in the BakkesMod 
 
 ## Change Log
 
+### 1.2.3
+- Move to vcpkg package manager
+
 ### 1.2.2
 - Adds Ranked Heatseeker to playlist selection
 
