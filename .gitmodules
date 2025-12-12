@@ -1,3 +1,0 @@
-[submodule "lobby-ranks/jsoncpp"]
-	path = lobby-ranks/jsoncpp
-	url = https://github.com/open-source-parsers/jsoncpp.git
