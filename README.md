@@ -27,6 +27,7 @@ The plugin is configurable:
   - Hoops
   - Rumble
   - Snowday
+  - Heatseeker
 
 Plugin configuration is automatically saved to file, and restore on load.
 
@@ -48,6 +49,9 @@ Additionally, you can bind the `jlg_lobby_rank_toggle` command in the BakkesMod 
 ---
 
 ## Change Log
+
+### 1.2.2
+- Adds Ranked Heatseeker to playlist selection
 
 ### 1.2.1
 - Adds Ranked 4v4 (Chaos) to playlist selection

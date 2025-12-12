@@ -16,6 +16,7 @@ enum class Team
 };
 const static auto TeamValues = { Team::Blue, Team::Orange, Team::None };
 
+// see bakkesmod/wrappers/MatchmakingWrapper.h PlaylistIds
 enum class Playlist
 {
 	Unranked = 1,
@@ -28,8 +29,9 @@ enum class Playlist
 	Dropshot = 29,
 	Snowday = 30,
 	Tournament = 34,
+	Heatseeker = 63,
 };
-const static auto PlaylistValues = { Playlist::Unranked, Playlist::Solo, Playlist::Twos, Playlist::Threes, Playlist::Fours, Playlist::Hoops, Playlist::Rumble, Playlist::Dropshot, Playlist::Snowday, Playlist::Tournament };
+const static auto PlaylistValues = { Playlist::Unranked, Playlist::Solo, Playlist::Twos, Playlist::Threes, Playlist::Fours, Playlist::Hoops, Playlist::Rumble, Playlist::Dropshot, Playlist::Snowday, Playlist::Tournament, Playlist::Heatseeker };
 
 enum class Rank
 {
@@ -146,11 +148,12 @@ namespace String
 		const static std::string Twos       { "2v2" };
 		const static std::string Threes     { "3v3" };
 		const static std::string Fours      { "4v4" };
-		const static std::string Hoops      { "H" };
-		const static std::string Rumble     { "R" };
-		const static std::string Dropshot   { "D" };
-		const static std::string Snowday    { "S" };
-		const static std::string Tournament { "T" };
+		const static std::string Hoops      { "Hoops" };
+		const static std::string Rumble     { "Rumble" };
+		const static std::string Dropshot   { "Dropshot" };
+		const static std::string Snowday    { "Snowday" };
+		const static std::string Tournament { "Tournament" };
+		const static std::string Heatseeker { "Heatseeker" };
 	} // END namespace Playlist
 
 	namespace Rank {
