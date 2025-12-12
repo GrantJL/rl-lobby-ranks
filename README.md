@@ -2,7 +2,7 @@
 
 ![Image of the Lobby Ranks table as displayed in Rocket League](https://i.imgur.com/E8XE0SA.png)
 
-View and install this plugin on [BakkesMod Plugins: Lobby Ranks](https://bakkesplugins.com/plugins/view/348)
+View and install this plugin on [BakkesMod Plugins: Lobby Ranks](https://bakkesplugins.com/plugin/348)
 
 Alternatively, download the latest release from [GitHub - LobbyRanks Releases](https://github.com/GrantJL/rl-lobby-ranks/releases), then copy the `lobby-ranks.dll` file to `%appdata%\bakkesmod\bakkesmod\plugins\`
 
