@@ -179,6 +179,7 @@ std::string util::toString<Playlist>( const Playlist& playlist )
 		case Playlist::Dropshot:   return String::Playlist::Dropshot;
 		case Playlist::Snowday:    return String::Playlist::Snowday;
 		case Playlist::Tournament: return String::Playlist::Tournament;
+		case Playlist::Heatseeker: return String::Playlist::Heatseeker;
 	}
 }
 template<>
@@ -211,5 +212,6 @@ std::string util::toFullName( const Playlist& v )
 		case Playlist::Dropshot:   return "Dropshot";
 		case Playlist::Snowday:    return "Snowday";
 		case Playlist::Tournament: return "Tournament";
+		case Playlist::Heatseeker: return "Heatseeker";
 	}
 }
