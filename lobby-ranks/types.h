@@ -148,12 +148,12 @@ namespace String
 		const static std::string Twos       { "2v2" };
 		const static std::string Threes     { "3v3" };
 		const static std::string Fours      { "4v4" };
-		const static std::string Hoops      { "H" };
+		const static std::string Hoops      { "Hp" };
 		const static std::string Rumble     { "R" };
-		const static std::string Dropshot   { "DS" };
-		const static std::string Snowday    { "SD" };
+		const static std::string Dropshot   { "D" };
+		const static std::string Snowday    { "S" };
 		const static std::string Tournament { "T" };
-		const static std::string Heatseeker { "HS" };
+		const static std::string Heatseeker { "Hs" };
 	} // END namespace Playlist
 
 	namespace Rank {
